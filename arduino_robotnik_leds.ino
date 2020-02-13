@@ -9,15 +9,11 @@
 #include <Adafruit_NeoPixel.h>
 #include "ros.h"
 #include <std_msgs/String.h>
-#include <rosserial_arduino/Test.h>
-//#include <my_custom_srv_msg_pkg/MyCustomServiceMessage.h>
 #include <robotnik_leds/LedsNormal.h>
 #include <robotnik_leds/LedsBlink.h>
 #include <robotnik_leds/LedsShift.h>
 
 ros::NodeHandle  nh;
-using rosserial_arduino::Test;
-//using my_custom_srv_msg_pkg::MyCustomServiceMessage;
 using robotnik_leds::LedsNormal;
 using robotnik_leds::LedsBlink;
 using robotnik_leds::LedsShift;
@@ -33,6 +29,11 @@ int i;
 elapsedMillis timeout_system;
 elapsedMillis timeout_blink_on;
 elapsedMillis timeout_blink_off;
+
+
+
+
+
 bool flag_blink = false;
 bool flag_blink_mode = false;
 
@@ -72,10 +73,39 @@ ros::ServiceServer<LedsBlink::Request, LedsBlink::Response> server_blink_mode("r
 ros::ServiceServer<LedsShift::Request, LedsShift::Response> server_shift_mode("robotnik_leds/set_leds/shift_mode",&callback_shift);
 
 
-std_msgs::String str_msg;
-ros::Publisher chatter("chatter", &str_msg);
 
-char hello[13] = "hello world!";
+uint8_t blink_mode(uint8_t color_R, uint8_t color_G, uint8_t color_B,
+                uint16_t start_led, uint16_t end_led,
+                uint16_t ms_on, uint16_t ms_off,
+                bool enabled) {
+
+    static bool isOn = true;
+    static uint8_t state = 0;
+    static elapsedMillis blink_time;
+
+    if(enabled){
+
+       Serial.println(blink_time);
+        if(blink_time > ms_off && !isOn){
+            pixels.fill(pixels.Color(color_R, color_G, color_B), start_led, end_led);
+            pixels.show();
+            blink_time = 0;
+            isOn = true;           
+        }
+
+        if(blink_time > ms_on && isOn){
+            pixels.clear();
+            pixels.show();
+            blink_time = 0;
+            isOn = false;
+        }
+
+    }
+
+  return state;
+
+}
+
 
 void setup()
 {
@@ -91,7 +121,6 @@ void setup()
   nh.advertiseService(server_normal_mode);
   nh.advertiseService(server_blink_mode);
   nh.advertiseService(server_shift_mode);
-  nh.advertise(chatter);
   pixels.begin();
   pixels.clear();
   pixels.show();
@@ -99,17 +128,21 @@ void setup()
   pinMode(13,OUTPUT);
   digitalWrite(13,LOW);
 
+  Serial.begin(9600);
+
 }
 
 void loop()
 {
   if(timeout_system > 10){
       timeout_system = 0;
-      str_msg.data = hello;
-      chatter.publish( &str_msg );
       nh.spinOnce();
   }
 
+  blink_mode(0,255,0, 2,2, 100, 100, true);
+
+  
+/*
   if(flag_blink_mode){
     
       if(timeout_blink_on > 100 && flag_blink == false){
@@ -129,5 +162,5 @@ void loop()
       }
   
   }
-
+*/
 }
