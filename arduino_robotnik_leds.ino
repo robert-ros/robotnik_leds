@@ -4,8 +4,6 @@
  */
 
 
-
-
 #include <Adafruit_NeoPixel.h>
 #include "ros.h"
 #include <std_msgs/String.h>
@@ -19,73 +17,148 @@ using robotnik_leds::LedsBlink;
 using robotnik_leds::LedsShift;
 
 
+
+/* Variables globales para el modo OnOff, se llamará PAINT (provisional, implementar un HandleMode)*/
+uint8_t  onoff_color_R = 0;
+uint8_t  onoff_color_G = 0;
+uint8_t  onoff_color_B = 0;
+uint16_t onoff_start_led = 0;
+uint16_t onoff_end_led = 0;
+bool     onoff_enabled = false;
+
+
+/* Variables globales para el modo Blink (provisional, implementar un HandleMode) */
+uint8_t  blink_color_R = 0;
+uint8_t  blink_color_G = 0;
+uint8_t  blink_color_B = 0;
+uint16_t blink_start_led = 0;
+uint16_t blink_end_led = 0;
+uint16_t blink_ms_on = 0;
+uint16_t blink_ms_off = 0;
+bool     blink_enabled = false;
+
+
+
+/* Tira led */
 #define PIN        6
 #define NUMPIXELS  5
-
 Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+
+
 
 int i;
 
 elapsedMillis timeout_system;
-elapsedMillis timeout_blink_on;
-elapsedMillis timeout_blink_off;
 
 
 
 
 
-bool flag_blink = false;
-bool flag_blink_mode = false;
 
-void callback_normal(const LedsNormal::Request & req, LedsNormal::Response & res){
+
+void callback_onoff(const LedsNormal::Request & req, LedsNormal::Response & res){
+
+  onoff_color_R = req.color_R;
+  onoff_color_G = req.color_G;
+  onoff_color_B = req.color_B;
+  onoff_start_led = req.start_led;
+  onoff_end_led = req.end_led;
+  onoff_enabled = req.enabled;
   
-  if((i++)%2){
-    res.state = true;
-    pixels.fill(pixels.Color(req.color_R, req.color_G, req.color_B), req.start_led, req.end_led);
-    pixels.show();
-  }
-  else{
-    res.state = false;
-    pixels.clear();
-    pixels.show();
-  }
 }
 
 
 void callback_blink(const LedsBlink::Request & req, LedsBlink::Response & res){
 
-  if((i++)%2)
-      flag_blink_mode = true;
-  else
-      flag_blink_mode = false;
-      pixels.fill(pixels.Color(0, 0, 0), 1, 4);
-      pixels.show();
-  res.state = true;
+  blink_color_R = req.color_R;
+  blink_color_G = req.color_G;
+  blink_color_B = req.color_B;
+  blink_start_led = req.start_led;
+  blink_end_led = req.end_led;
+  blink_ms_on = req.ms_on;
+  blink_ms_off = req.ms_off; 
+  blink_enabled = req.enabled;
+  
 }
+
 
 void callback_shift(const LedsShift::Request & req, LedsShift::Response & res){
   res.state = false;
 }
 
 
-ros::ServiceServer<LedsNormal::Request, LedsNormal::Response> server_normal_mode("robotnik_leds/set_leds/normal_mode",&callback_normal);
+ros::ServiceServer<LedsNormal::Request, LedsNormal::Response> server_onoff_mode("robotnik_leds/set_leds/onoff_mode",&callback_onoff);
 ros::ServiceServer<LedsBlink::Request, LedsBlink::Response> server_blink_mode("robotnik_leds/set_leds/blink_mode",&callback_blink);
 ros::ServiceServer<LedsShift::Request, LedsShift::Response> server_shift_mode("robotnik_leds/set_leds/shift_mode",&callback_shift);
 
 
 
-uint8_t blink_mode(uint8_t color_R, uint8_t color_G, uint8_t color_B,
-                uint16_t start_led, uint16_t end_led,
-                uint16_t ms_on, uint16_t ms_off,
-                bool enabled) {
+// ============================== ON & OFF   M O D E ================================= //
 
-    static bool isOn = true;
-    static uint8_t state = 0;
-    static elapsedMillis blink_time;
+
+uint8_t onoff_mode(uint8_t color_R, uint8_t color_G, uint8_t color_B,
+                   uint16_t start_led, uint16_t end_led, 
+                   bool enabled){
+
+    static uint8_t onoff_state = 0;
+    static bool isUpdated = false;
+    
+
+    /*  Detecta si ha actualizado algun parámetro de la tira. Esto permite que el microcontrolador
+        no actualice constantemente la tira, ya que el valor es siempre el mismo sino han habido cambios
+     */
+ 
+    static uint8_t last_color_R = 0, last_color_G = 0, last_color_B = 0;
+    static uint16_t last_start_led = 0, last_end_led = 0;
+
+    if(last_color_R != color_R || last_color_G != color_G || last_color_B != color_B ||
+       last_start_led != start_led || last_end_led != end_led){
+
+        //Algun parametro se ha actualizado
+        isUpdated = true;
+        last_color_R = color_R;
+        last_color_G = color_G;
+        last_color_B = color_B;
+        last_start_led = start_led;
+        last_end_led = end_led;
+    }
+
 
     if(enabled){
 
-       Serial.println(blink_time);
+        if(isUpdated){
+            
+            pixels.fill(pixels.Color(color_R, color_G, color_B), start_led, end_led);
+            pixels.show();
+            isUpdated = false; // Se ha actualizado la tira led
+        }
+    }
+
+
+  return onoff_state;
+}
+
+
+
+
+
+// ============================== B L I N K   M O D E ================================= //
+
+
+uint8_t blink_mode(uint8_t color_R, uint8_t color_G, uint8_t color_B,
+                   uint16_t start_led, uint16_t end_led,
+                   uint16_t ms_on, uint16_t ms_off,
+                   bool enabled) {
+
+    static bool isOn = false;         //Indica si el el led debe estar encendido o apagado
+    static uint8_t blink_state = 0;   //Estado del modo blink
+    static elapsedMillis blink_time;  //Tiempo transcurrido entre un intervalo
+    static bool isClear = true;       //Indica si hay que limpiar (apagar los leds) la zona donde ha trabajado el modo blink cuando ha terminado
+
+    if(enabled){
+
+        isClear = false;
+
         if(blink_time > ms_off && !isOn){
             pixels.fill(pixels.Color(color_R, color_G, color_B), start_led, end_led);
             pixels.show();
@@ -94,7 +167,7 @@ uint8_t blink_mode(uint8_t color_R, uint8_t color_G, uint8_t color_B,
         }
 
         if(blink_time > ms_on && isOn){
-            pixels.clear();
+            pixels.fill(pixels.Color(0, 0, 0), start_led, end_led);
             pixels.show();
             blink_time = 0;
             isOn = false;
@@ -102,7 +175,14 @@ uint8_t blink_mode(uint8_t color_R, uint8_t color_G, uint8_t color_B,
 
     }
 
-  return state;
+    else if (!isClear){
+        pixels.fill(pixels.Color(0, 0, 0), start_led, end_led);
+        pixels.show();
+        isClear = true;
+    }
+    
+
+  return blink_state;
 
 }
 
@@ -118,7 +198,7 @@ void setup()
   #endif   
 
   nh.initNode();
-  nh.advertiseService(server_normal_mode);
+  nh.advertiseService(server_onoff_mode);
   nh.advertiseService(server_blink_mode);
   nh.advertiseService(server_shift_mode);
   pixels.begin();
@@ -127,9 +207,6 @@ void setup()
 
   pinMode(13,OUTPUT);
   digitalWrite(13,LOW);
-
-  Serial.begin(9600);
-
 }
 
 void loop()
@@ -139,28 +216,9 @@ void loop()
       nh.spinOnce();
   }
 
-  blink_mode(0,255,0, 2,2, 100, 100, true);
+  
+  blink_mode(blink_color_R,blink_color_G,blink_color_B, blink_start_led, blink_end_led, blink_ms_on, blink_ms_off, blink_enabled);
+  onoff_mode(onoff_color_R,onoff_color_G,onoff_color_B, onoff_start_led, onoff_end_led, onoff_enabled);
+  
 
-  
-/*
-  if(flag_blink_mode){
-    
-      if(timeout_blink_on > 100 && flag_blink == false){
-          pixels.fill(pixels.Color(0, 0, 255), 1, 4);
-          pixels.show();
-          flag_blink = true;
-          timeout_blink_on = 0;
-          timeout_blink_off = 0;
-      }
-      
-      if(timeout_blink_off > 100 && flag_blink == true){
-          pixels.fill(pixels.Color(0, 0, 0), 1, 4);
-          pixels.show();
-          flag_blink = false;  
-          timeout_blink_on = 0;
-          timeout_blink_off = 0;
-      }
-  
-  }
-*/
 }
