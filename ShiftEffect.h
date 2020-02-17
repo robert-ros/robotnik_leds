@@ -9,7 +9,9 @@
   class ShiftEffect{
     
     private:
+    
       Adafruit_NeoPixel *pixels;
+      
       elapsedMicros shift_time;
       double shift_tic = 0, shift_toc = 0;
       int count_pixel = 0; 

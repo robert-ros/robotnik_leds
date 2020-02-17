@@ -1,0 +1,60 @@
+
+
+  #ifndef _BLINK_EFFECT_H_
+  #define _BLINK_EFFECT_H_
+  
+  #include <Arduino.h>
+  #include <Adafruit_NeoPixel.h>
+  
+  
+  class BlinkEffect{
+    
+    private:
+    
+      Adafruit_NeoPixel *pixels;
+
+      bool isOn = false;         //Indica si el el led debe estar encendido o apagado
+      uint16_t blink_pixels; // Numero de pixeles involucrados en realizar el efecto blink
+      uint8_t blink_state = 0;   //Estado del modo blink
+      elapsedMillis blink_time;  //Tiempo transcurrido entre un intervalo
+      bool isClear = true;       //Indica si hay que limpiar (apagar los leds) la zona donde ha trabajado el modo blink cuando ha terminado
+  
+
+
+    public:
+    
+      BlinkEffect(Adafruit_NeoPixel &pixels);
+
+      struct leds_blink{
+  
+          leds_blink(): 
+              id(0),
+              color_R(0),
+              color_G(0),
+              color_B(0),
+              start_led(0),
+              end_led(0),
+              ms_on (500),
+              ms_off (500),
+              enabled(false) {}
+          
+          uint8_t  id;
+          uint8_t  color_R;
+          uint8_t  color_G;
+          uint8_t  color_B;
+          uint16_t start_led;
+          uint16_t end_led;
+          uint16_t ms_on = 0;
+          uint16_t ms_off = 0;
+          bool     enabled;
+      
+      } blink_config;
+
+
+      uint8_t blink_mode( struct leds_blink blink_config);
+ 
+  };
+
+
+  
+  #endif

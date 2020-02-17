@@ -45,6 +45,9 @@
 #include <Adafruit_NeoPixel.h>
 #include "ros.h"
 #include <std_msgs/String.h>
+#include "LedsEffect.h"
+#include "ShiftEffect.h"
+#include "BlinkEffect.h"
 #include <robotnik_leds/LedsPaint.h>
 #include <robotnik_leds/LedsBlink.h>
 #include <robotnik_leds/LedsShift.h>
@@ -54,34 +57,6 @@ using robotnik_leds::LedsPaint;
 using robotnik_leds::LedsBlink;
 using robotnik_leds::LedsShift;
 
-/*
-struct leds_shift{
-  
-  leds_shift(): 
-      shift_id(0),
-      shift_color_R(0),
-      shift_color_G(0),
-      shift_color_B(0),
-      shift_start_led(0),
-      shift_end_led(0),
-      shift_direction("right"),
-      shift_speed(0),
-      shift_sleep(0),
-      shift_enabled(false) {}
-  
-  uint8_t  shift_id;
-  uint8_t  shift_color_R;
-  uint8_t  shift_color_G;
-  uint8_t  shift_color_B;
-  uint16_t shift_start_led;
-  uint16_t shift_end_led;
-  String   shift_direction;
-  uint16_t shift_speed;
-  uint16_t shift_sleep;
-  bool     shift_enabled;
-  
-  };
-*/
 
 /* Variables globales para el modo paint, se llamará PAINT
 (provisional, implementar un HandleMode)*/
@@ -126,7 +101,11 @@ bool     shift_enabled = false;
 #define NUMPIXELS  130
 Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
+ShiftEffect effect_1(pixels);
+ShiftEffect effect_2(pixels);
 
+BlinkEffect effect_3(pixels);
+BlinkEffect effect_4(pixels);
 
 int i;
 
@@ -287,322 +266,6 @@ uint8_t blink_mode(uint8_t blink_id,
 }
 
 
-// ============================== S H I F T    M O D E ================================= //
-
-/*
-uint8_t shift_mode(uint8_t shift_id,
-                   uint8_t color_R, uint8_t color_G, uint8_t color_B,
-                   uint16_t start_led, uint16_t end_led,
-                   String direction,
-                   uint16_t speed, uint16_t sleep,
-                   bool enabled) {
-
-    static elapsedMicros shift_time;
-    static double shift_tic = 0, shift_toc = 0;
-    static int count_pixel = 0; //Momentaneo.
-    static uint8_t shift_state = 0;
-    static uint16_t shift_pixels; // Numero de pixeles involucrados en realizar el efecto shift
-    static bool isClear = true;   //Indica si hay que limpiar la zona (apagar los leds) donde ha trabajado el modo shift cuando ha terminado
-    static uint16_t last_start_led = 0, last_end_led, last_shift_pixels = 0;
-
-    shift_pixels = end_led - start_led + 1; // Por ejemplo start: 4, end: 2 Hay 4-2+1 = 3 pixeles involucrados
-
-
-    // Detecta si ha actualizado el led de inicio o el led de fin
-    
-    if(last_start_led != start_led || last_end_led != end_led){
-
-        // Actualiza el led desde donde comenzará a contar count_pixel
-        count_pixel = start_led;
-
-        //Limpia la zona de trabajo antigua para poder funcionar con la nueva zona
-        pixels.fill(pixels.Color(0, 0, 0), last_start_led-1, last_shift_pixels);
-        pixels.show();
-
-        last_start_led = start_led;
-        last_end_led = end_led;
-        last_shift_pixels = shift_pixels;
-        
-    }
-
-
-    if(enabled){
-
-        isClear = false;
-    
-        float shift_time_ms = shift_time/1000.0;
-        float speed_per_pixel = float(speed)/float(shift_pixels+1);
-    
-        //Realiza el efecto shift
-        if(shift_time_ms >= speed_per_pixel){
-
-            shift_time = 0;
-
-            //Serial.println(speed_per_pixel);
-          
-            //Si se ha alcanzado el led final, se limpia la zona de trabajo y se reinicia el contador
-            //En caso contrario, realiza el shift
-            if(count_pixel > end_led){
-              
-                //Nota: start_led cuenta los leds desde 1 mientras que setPixelColor lo hace desde 0 
-                pixels.fill(pixels.Color(0, 0, 0), start_led-1, shift_pixels);  
-                pixels.show();
-                count_pixel = start_led; 
-
-                //shift_toc = micros()/1000.0;
-                //Serial.print("Resutado_1: ");
-                //Serial.println(shift_toc - shift_tic);
-                //shift_tic = micros()/1000.0;
-                
-            }
-            else {
-
-                //Nota: count_pixel cuenta los leds de 1 a N_leds mientras que setPixelColor lo hace de 0 a N_leds-1 
-                
-                if(direction.equals("right"))
-                    
-                    pixels.setPixelColor(count_pixel-1, pixels.Color(color_R, color_G, color_B));
-                
-                else if (direction.equals("left"))
-                    
-                    pixels.setPixelColor( (shift_pixels+start_led) - 1 - (count_pixel-start_led) - 1 , pixels.Color(color_R, color_G, color_B));
-
-                
-                pixels.show();
-                count_pixel++;         
-            }
-        }
-    }
-
-    else if (!isClear){
-        pixels.fill(pixels.Color(0, 0, 0), start_led-1, shift_pixels);
-        pixels.show();
-        isClear = true;
-    }
-
-
-
-  return shift_state;               
-}
-*/
-
-uint8_t shift_mode(uint8_t shift_id,
-                   uint8_t color_R, uint8_t color_G, uint8_t color_B,
-                   uint16_t start_led, uint16_t end_led,
-                   String direction,
-                   uint16_t speed, uint16_t sleep,
-                   bool enabled) {
-
-    static elapsedMicros shift_time;
-    static double shift_tic = 0, shift_toc = 0;
-    static int count_pixel = 0; //Momentaneo.
-    static uint8_t shift_state = 0;
-    static uint16_t shift_pixels; // Numero de pixeles involucrados en realizar el efecto shift
-    static bool isClear = true;   //Indica si hay que limpiar la zona (apagar los leds) donde ha trabajado el modo shift cuando ha terminado
-    static uint16_t last_start_led = 0, last_end_led, last_shift_pixels = 0;
-
-    shift_pixels = end_led - start_led + 1; // Por ejemplo start: 4, end: 2 Hay 4-2+1 = 3 pixeles involucrados
-
-
-    // Detecta si ha actualizado el led de inicio o el led de fin
-    
-    if(last_start_led != start_led || last_end_led != end_led){
-
-        // Actualiza el led desde donde comenzará a contar count_pixel
-        count_pixel = start_led;
-
-        //Limpia la zona de trabajo antigua para poder funcionar con la nueva zona
-        pixels.fill(pixels.Color(0, 0, 0), last_start_led-1, last_shift_pixels);
-        pixels.show();
-
-        last_start_led = start_led;
-        last_end_led = end_led;
-        last_shift_pixels = shift_pixels;
-        
-    }
-
-
-    if(enabled){
-
-        isClear = false;
-
-        float shift_time_ms = shift_time/1000.0;
-        float speed_per_pixel = float(speed)/float(shift_pixels+1);
-        static float shift_time_compensation=0;
-        
-        //Realiza el efecto shift
-        if(shift_time_ms >= (speed_per_pixel+shift_time_compensation)){
-
-          shift_time = 0;
-
-          shift_time_compensation = float(speed_per_pixel) - shift_time_ms + shift_time_compensation;
-
-          //Serial.println("--");
-          //Serial.println(shift_time_compensation);
-          //Serial.println(speed_per_pixel);
-          //Serial.println(speed_per_pixel+shift_time_compensation);
-          //Serial.println(shift_time_ms);
-
-                //Serial.println(speed_per_pixel);
-                //shift_toc = micros()/1000.0;
-                //Serial.println(shift_toc - shift_tic);
-                //shift_tic = micros()/1000.0;
-          
-            //Si se ha alcanzado el led final, se limpia la zona de trabajo y se reinicia el contador
-            //En caso contrario, realiza el shift
-            if(count_pixel > end_led){
-                
-                //Nota: start_led cuenta los leds desde 1 mientras que setPixelColor lo hace desde 0 
-                pixels.fill(pixels.Color(0, 0, 0), start_led-1, shift_pixels);  
-                pixels.show();
-                count_pixel = start_led; 
-
-                //shift_toc = micros()/1000.0;
-                //Serial.print("Resutado_2: ");
-                //Serial.println(shift_toc - shift_tic);
-                //shift_tic = micros()/1000.0;
-                
-            }
-            else {
-              
-                //Nota: count_pixel cuenta los leds de 1 a N_leds mientras que setPixelColor lo hace de 0 a N_leds-1 
-                
-                if(direction.equals("right"))
-                    
-                    pixels.setPixelColor(count_pixel-1, pixels.Color(color_R, color_G, color_B));
-                
-                else if (direction.equals("left"))
-                    
-                    pixels.setPixelColor( (shift_pixels+start_led) - 1 - (count_pixel-start_led) - 1 , pixels.Color(color_R, color_G, color_B));
-
-                
-                pixels.show();
-                count_pixel++;         
-            }
-        }
-    }
-
-    else if (!isClear){
-        pixels.fill(pixels.Color(0, 0, 0), start_led-1, shift_pixels);
-        pixels.show();
-        isClear = true;
-    }
-
-
-
-  return shift_state;               
-}
-
-
-
-uint8_t shift_mode_2(uint8_t shift_id,
-                   uint8_t color_R, uint8_t color_G, uint8_t color_B,
-                   uint16_t start_led, uint16_t end_led,
-                   String direction,
-                   uint16_t speed, uint16_t sleep,
-                   bool enabled) {
-
-    static elapsedMicros shift_time;
-    static double shift_tic = 0, shift_toc = 0;
-    static int count_pixel = 0; //Momentaneo.
-    static uint8_t shift_state = 0;
-    static uint16_t shift_pixels; // Numero de pixeles involucrados en realizar el efecto shift
-    static bool isClear = true;   //Indica si hay que limpiar la zona (apagar los leds) donde ha trabajado el modo shift cuando ha terminado
-    static uint16_t last_start_led = 0, last_end_led, last_shift_pixels = 0;
-
-    shift_pixels = end_led - start_led + 1; // Por ejemplo start: 4, end: 2 Hay 4-2+1 = 3 pixeles involucrados
-
-
-    // Detecta si ha actualizado el led de inicio o el led de fin
-    
-    if(last_start_led != start_led || last_end_led != end_led){
-
-        // Actualiza el led desde donde comenzará a contar count_pixel
-        count_pixel = start_led;
-
-        //Limpia la zona de trabajo antigua para poder funcionar con la nueva zona
-        pixels.fill(pixels.Color(0, 0, 0), last_start_led-1, last_shift_pixels);
-        pixels.show();
-
-        last_start_led = start_led;
-        last_end_led = end_led;
-        last_shift_pixels = shift_pixels;
-        
-    }
-
-
-    if(enabled){
-
-        isClear = false;
-
-        float shift_time_ms = shift_time/1000.0;
-        float speed_per_pixel = float(speed)/float(shift_pixels+1);
-        static float shift_time_compensation=0;
-        
-        //Realiza el efecto shift
-        if(shift_time_ms >= (speed_per_pixel+shift_time_compensation)){
-
-          shift_time = 0;
-
-          shift_time_compensation = float(speed_per_pixel) - shift_time_ms + shift_time_compensation;
-
-          Serial.println("--");
-          Serial.println(shift_time_compensation);
-          Serial.println(speed_per_pixel);
-          Serial.println(speed_per_pixel+shift_time_compensation);
-          Serial.println(shift_time_ms);
-
-                //Serial.println(speed_per_pixel);
-                //shift_toc = micros()/1000.0;
-                //Serial.println(shift_toc - shift_tic);
-                //shift_tic = micros()/1000.0;
-          
-            //Si se ha alcanzado el led final, se limpia la zona de trabajo y se reinicia el contador
-            //En caso contrario, realiza el shift
-            if(count_pixel > end_led){
-                
-                //Nota: start_led cuenta los leds desde 1 mientras que setPixelColor lo hace desde 0 
-                pixels.fill(pixels.Color(0, 0, 0), start_led-1, shift_pixels);  
-                pixels.show();
-                count_pixel = start_led; 
-
-                //shift_toc = micros()/1000.0;
-                //Serial.print("Resutado_2: ");
-                //Serial.println(shift_toc - shift_tic);
-                //shift_tic = micros()/1000.0;
-                
-            }
-            else {
-              
-                //Nota: count_pixel cuenta los leds de 1 a N_leds mientras que setPixelColor lo hace de 0 a N_leds-1 
-                
-                if(direction.equals("right"))
-                    
-                    pixels.setPixelColor(count_pixel-1, pixels.Color(color_R, color_G, color_B));
-                
-                else if (direction.equals("left"))
-                    
-                    pixels.setPixelColor( (shift_pixels+start_led) - 1 - (count_pixel-start_led) - 1 , pixels.Color(color_R, color_G, color_B));
-
-                
-                pixels.show();
-                count_pixel++;         
-            }
-        }
-    }
-
-    else if (!isClear){
-        pixels.fill(pixels.Color(0, 0, 0), start_led-1, shift_pixels);
-        pixels.show();
-        isClear = true;
-    }
-
-
-
-  return shift_state;               
-}
-
-
 
 
 void setup()
@@ -638,7 +301,7 @@ void loop()
   }
   
   //blink_mode(blink_id, blink_color_R,blink_color_G,blink_color_B, blink_start_led, blink_end_led, blink_ms_on, blink_ms_off, blink_enabled);
-  //blink_mode(1, 20,0,0, 2, 4, 1000, 1000, true);
+  //blink_mode(1, 20,0,0, 2, 4, 500, 500, true);
   //paint_mode(paint_id, paint_color_R,paint_color_G,paint_color_B, paint_start_led, paint_end_led, paint_enabled);
   //paint_mode(1, 20,0,0, 1, 5, true);
   //shift_mode(shift_id, shift_color_R,shift_color_G, shift_color_B, shift_start_led, shift_end_led, shift_direction, shift_speed, shift_sleep, shift_enabled); 
@@ -646,10 +309,83 @@ void loop()
   //shift_mode   (1, 0,20,0, 11, 19, "left", 1000, 1000, true);
   //shift_mode_2 (1, 0,0,20, 1, 4, "right", 1000, 1000, true);
 
+
   
-  shift_mode   (1, 0,0,10, 1, 15, "right", 1000, 1000, true);
-  shift_mode_2   (1, 0,10,0, 16, 30, "left", 1000, 1000, true);
+  
+  //shift_mode   (1, 0,0,10, 1, 15, "right", 1000, 1000, true);
+  //shift_mode_2   (1, 0,10,0, 16, 30, "left", 1000, 1000, true);
   //shift_mode_2 (1, 0,10,0, 7, 57, "left", 1000, 1000, true);
 
+   /*
+    led1.on();
+    delay(1000);
+    led1.off()
+    delay(1000);
+*/
+   // effect_1.shift_mode(pixels, 1, 0,0,10, 1, 15, "right", 1000, 1000, true);
+   // effect_2.shift_mode(pixels, 1, 0,10,0, 16, 30, "left", 1000, 1000, true);
+   // effect_3.shift_mode(pixels, 1, 10,0,0, 31, 45, "right", 1000, 1000, true);
 
+
+
+  effect_1.shift_config.id = 0;
+  effect_1.shift_config.color_R = 0;
+  effect_1.shift_config.color_G = 20;
+  effect_1.shift_config.color_B = 0;
+  effect_1.shift_config.start_led = 16;
+  effect_1.shift_config.end_led = 30;
+  effect_1.shift_config.direction = "left";
+  effect_1.shift_config.speed = 1000;
+  effect_1.shift_config.sleep = 1000;
+  effect_1.shift_config.enabled = true;
+  
+  effect_1.shift_mode(effect_1.shift_config);
+
+
+
+
+  effect_2.shift_config.id = 0;
+  effect_2.shift_config.color_R = 10;
+  effect_2.shift_config.color_G = 0;
+  effect_2.shift_config.color_B = 0;
+  effect_2.shift_config.start_led = 1;
+  effect_2.shift_config.end_led = 15;
+  effect_2.shift_config.direction = "right";
+  effect_2.shift_config.speed = 1000;
+  effect_2.shift_config.sleep = 1000;
+  effect_2.shift_config.enabled = true;
+   
+  effect_2.shift_mode( effect_2.shift_config);
+
+
+  effect_3.blink_config.id = 0;
+  effect_3.blink_config.color_R = 0;
+  effect_3.blink_config.color_G = 0;
+  effect_3.blink_config.color_B = 20;
+  effect_3.blink_config.start_led = 31;
+  effect_3.blink_config.end_led = 45;
+  effect_3.blink_config.ms_on = 750;
+  effect_3.blink_config.ms_off = 750;
+  effect_3.blink_config.enabled = true;
+   
+  effect_3.blink_mode(effect_3.blink_config);
+
+
+  
+  effect_4.blink_config.id = 0;
+  effect_4.blink_config.color_R = 0;
+  effect_4.blink_config.color_G = 10;
+  effect_4.blink_config.color_B = 10;
+  effect_4.blink_config.start_led = 46;
+  effect_4.blink_config.end_led = 60;
+  effect_4.blink_config.ms_on = 100;
+  effect_4.blink_config.ms_off = 100;
+  effect_4.blink_config.enabled = true;
+   
+  effect_4.blink_mode(effect_4.blink_config);
+
+
+
+
+   
 }
