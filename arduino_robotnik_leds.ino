@@ -47,6 +47,7 @@
 #include <std_msgs/String.h>
 #include "ShiftEffect.h"
 #include "BlinkEffect.h"
+#include "PaintEffect.h"
 
 #include <robotnik_leds/LedsPaint.h>
 #include <robotnik_leds/LedsBlink.h>
@@ -107,6 +108,9 @@ ShiftEffect effect_2(pixels);
 BlinkEffect effect_3(pixels);
 BlinkEffect effect_4(pixels);
 
+PaintEffect effect_5(pixels);
+PaintEffect effect_6(pixels);
+
 int i;
 
 elapsedMillis timeout_system;
@@ -164,109 +168,6 @@ ros::ServiceServer<LedsShift::Request, LedsShift::Response> server_shift_mode("r
 
 
 
-// ============================== P A I N T    M O D E ================================= //
-
-
-uint8_t paint_mode(uint8_t paint_id,
-                   uint8_t color_R, uint8_t color_G, uint8_t color_B,
-                   uint16_t start_led, uint16_t end_led, 
-                   bool enabled){
-
-    static uint8_t paint_state = 0;
-    static bool isUpdated = false;  
-    static uint16_t paint_pixels = 0;  // Numero de pixeles involucrados en realizar el efecto blink
-
-
-    // Detecta si ha actualizado algun parámetro de la tira. Esto permite que el microcontrolador
-    // no actualice constantemente la tira, ya que el valor es siempre el mismo sino han habido cambios
- 
-    static uint8_t last_color_R = 0, last_color_G = 0, last_color_B = 0;
-    static uint16_t last_start_led = 0, last_end_led = 0;
-
-    if(last_color_R != color_R || last_color_G != color_G || last_color_B != color_B ||
-       last_start_led != start_led || last_end_led != end_led){
-
-        //Algun parametro se ha actualizado
-        isUpdated = true;
-        last_color_R = color_R;
-        last_color_G = color_G;
-        last_color_B = color_B;
-        last_start_led = start_led;
-        last_end_led = end_led;
-    }
-
-    paint_pixels = end_led - start_led + 1; // Por ejemplo start: 4, end: 2 Hay 4-2+1 = 3 pixeles involucrados
-
-
-    if(enabled){
-
-        if(isUpdated){
-          
-            //Nota: start_led cuenta los leds desde 1 mientras que fill() lo hace desde 0   
-            pixels.fill(pixels.Color(color_R, color_G, color_B), start_led-1 , paint_pixels);
-            pixels.show();
-            isUpdated = false; // Se ha actualizado la tira led
-        }
-    }
-
-
-  return paint_state;
-}
-
-
-
-// ============================== B L I N K   M O D E ================================= //
-
-
-uint8_t blink_mode(uint8_t blink_id,
-                   uint8_t color_R, uint8_t color_G, uint8_t color_B,
-                   uint16_t start_led, uint16_t end_led,
-                   uint16_t ms_on, uint16_t ms_off,
-                   bool enabled) {
-
-    static bool isOn = false;         //Indica si el el led debe estar encendido o apagado
-    static uint16_t blink_pixels; // Numero de pixeles involucrados en realizar el efecto blink
-    static uint8_t blink_state = 0;   //Estado del modo blink
-    static elapsedMillis blink_time;  //Tiempo transcurrido entre un intervalo
-    static bool isClear = true;       //Indica si hay que limpiar (apagar los leds) la zona donde ha trabajado el modo blink cuando ha terminado
-
-    blink_pixels = end_led - start_led + 1; // Por ejemplo start: 4, end: 2 Hay 4-2+1 = 3 pixeles involucrados
-
-    //Nota: start_led cuenta los leds desde 1 mientras que fill() lo hace desde 0 
-
-    if(enabled){
-
-        isClear = false;
-
-        if(blink_time > ms_off && !isOn){
-            pixels.fill(pixels.Color(color_R, color_G, color_B), start_led-1, blink_pixels);
-            pixels.show();
-            blink_time = 0;
-            isOn = true;          
-        }
-
-        if(blink_time > ms_on && isOn){
-            pixels.fill(pixels.Color(0, 0, 0), start_led-1, blink_pixels);
-            pixels.show();
-            blink_time = 0;
-            isOn = false;
-        }
-
-    }
-
-    else if (!isClear){
-        pixels.fill(pixels.Color(0, 0, 0), start_led-1, blink_pixels);
-        pixels.show();
-        isClear = true;
-    }
-    
-
-  return blink_state;
-
-}
-
-
-
 
 void setup()
 {
@@ -300,31 +201,6 @@ void loop()
       nh.spinOnce();
   }
   
-  //blink_mode(blink_id, blink_color_R,blink_color_G,blink_color_B, blink_start_led, blink_end_led, blink_ms_on, blink_ms_off, blink_enabled);
-  //blink_mode(1, 20,0,0, 2, 4, 500, 500, true);
-  //paint_mode(paint_id, paint_color_R,paint_color_G,paint_color_B, paint_start_led, paint_end_led, paint_enabled);
-  //paint_mode(1, 20,0,0, 1, 5, true);
-  //shift_mode(shift_id, shift_color_R,shift_color_G, shift_color_B, shift_start_led, shift_end_led, shift_direction, shift_speed, shift_sleep, shift_enabled); 
-  
-  //shift_mode   (1, 0,20,0, 11, 19, "left", 1000, 1000, true);
-  //shift_mode_2 (1, 0,0,20, 1, 4, "right", 1000, 1000, true);
-
-
-  
-  
-  //shift_mode   (1, 0,0,10, 1, 15, "right", 1000, 1000, true);
-  //shift_mode_2   (1, 0,10,0, 16, 30, "left", 1000, 1000, true);
-  //shift_mode_2 (1, 0,10,0, 7, 57, "left", 1000, 1000, true);
-
-   /*
-    led1.on();
-    delay(1000);
-    led1.off()
-    delay(1000);
-*/
-   // effect_1.shift_mode(pixels, 1, 0,0,10, 1, 15, "right", 1000, 1000, true);
-   // effect_2.shift_mode(pixels, 1, 0,10,0, 16, 30, "left", 1000, 1000, true);
-   // effect_3.shift_mode(pixels, 1, 10,0,0, 31, 45, "right", 1000, 1000, true);
 
 
 
@@ -340,7 +216,6 @@ void loop()
   effect_1.shift_config.enabled = true;
   
   effect_1.shift_mode(effect_1.shift_config);
-
 
 
 
@@ -383,6 +258,31 @@ void loop()
   effect_4.blink_config.enabled = true;
    
   effect_4.blink_mode(effect_4.blink_config);
+
+
+
+  
+  effect_5.paint_config.id = 0;
+  effect_5.paint_config.color_R = 10;
+  effect_5.paint_config.color_G = 10;
+  effect_5.paint_config.color_B = 10;
+  effect_5.paint_config.start_led = 61;
+  effect_5.paint_config.end_led = 70;
+  effect_5.paint_config.enabled = true;
+   
+  effect_5.paint_mode(effect_5.paint_config);
+
+
+
+  effect_6.paint_config.id = 0;
+  effect_6.paint_config.color_R = 10;
+  effect_6.paint_config.color_G = 20;
+  effect_6.paint_config.color_B = 0;
+  effect_6.paint_config.start_led = 71;
+  effect_6.paint_config.end_led = 80;
+  effect_6.paint_config.enabled = true;
+   
+  effect_6.paint_mode(effect_6.paint_config);
 
 
 

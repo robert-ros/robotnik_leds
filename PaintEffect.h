@@ -16,7 +16,8 @@
       uint8_t paint_state = 0;
       bool isUpdated = false;  
       uint16_t paint_pixels = 0;  // Numero de pixeles involucrados en realizar el efecto blink
-
+      uint8_t last_color_R = 0, last_color_G = 0, last_color_B = 0;
+      uint16_t last_start_led = 0, last_end_led = 0;
 
     public:
     
