@@ -45,9 +45,9 @@
 #include <Adafruit_NeoPixel.h>
 #include "ros.h"
 #include <std_msgs/String.h>
-#include "LedsEffect.h"
 #include "ShiftEffect.h"
 #include "BlinkEffect.h"
+
 #include <robotnik_leds/LedsPaint.h>
 #include <robotnik_leds/LedsBlink.h>
 #include <robotnik_leds/LedsShift.h>
