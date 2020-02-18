@@ -10,6 +10,8 @@
  *              esto es debido a esperas activas de la librería Adafruit o de ROS. La solucion es
  *              compensar la espera en los millis();
  *              
+ *  CORREGIR BUG: a veces cuando Blink debe apagarse, no lo hace
+ *              
  *  Ver rendimiento uC, con isUpdate y isClear
  *  Cuando se envie un led 0 a las funciones, gestionarlo para que de un error diciendo que los leds van de 1 a N
  *  Añadir todas las funciones a shift y:
@@ -65,6 +67,7 @@ using robotnik_leds::LedsShift;
 
 /* Variables globales para el modo paint, se llamará PAINT
 (provisional, implementar un HandleMode)*/
+/*
 uint8_t  paint_id = 0;
 uint8_t  paint_color_R = 0;
 uint8_t  paint_color_G = 0;
@@ -72,6 +75,28 @@ uint8_t  paint_color_B = 0;
 uint16_t paint_start_led = 0;
 uint16_t paint_end_led = 0;
 bool     paint_enabled = false;
+*/
+
+struct paint_leds{
+
+    paint_leds(): 
+        id(0),
+        color_R(0),
+        color_G(0),
+        color_B(0),
+        start_led(0),
+        end_led(0),
+        enabled(false) {}
+    
+    uint8_t  id;
+    uint8_t  color_R;
+    uint8_t  color_G;
+    uint8_t  color_B;
+    uint16_t start_led;
+    uint16_t end_led;
+    bool     enabled;
+    
+    } paint_config;
 
 
 /* Variables globales para el modo Blink (provisional, implementar un HandleMode) */
@@ -150,8 +175,6 @@ struct shift_leds{
 #define NUMPIXELS  130
 Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
-ShiftEffect effect_1(pixels);
-ShiftEffect effect_2(pixels);
 
 ShiftEffect shift_effect[5](pixels);
 
@@ -159,6 +182,10 @@ BlinkEffect blink_effect[5](pixels);
 
 PaintEffect effect_5(pixels);
 PaintEffect effect_6(pixels);
+
+PaintEffect paint_effect[5](pixels);
+
+
 
 
 
@@ -169,13 +196,13 @@ elapsedMillis timeout_system;
 
 void callback_paint(const LedsPaint::Request & req, LedsPaint::Response & res){
 
-  paint_id = req.paint_id;
-  paint_color_R = req.color_R;
-  paint_color_G = req.color_G;
-  paint_color_B = req.color_B;
-  paint_start_led = req.start_led;
-  paint_end_led = req.end_led;
-  paint_enabled = req.enabled;
+  paint_config.id = req.paint_id;
+  paint_config.color_R = req.color_R;
+  paint_config.color_G = req.color_G;
+  paint_config.color_B = req.color_B;
+  paint_config.start_led = req.start_led;
+  paint_config.end_led = req.end_led;
+  paint_config.enabled = req.enabled;
   
 }
 
@@ -242,7 +269,8 @@ void setup()
   Serial.begin(2000000);
 
   for(int i = 0; i<5; i++){
-      
+
+      paint_effect[i].assign_id(i);
       blink_effect[i].assign_id(i);
       shift_effect[i].assign_id(i);
       
@@ -274,6 +302,9 @@ void loop()
 
  
   for(int i=0; i < 5; i++){
+
+    memcpy(&paint_effect[i].paint_config , &paint_config, sizeof(paint_effect[i].paint_config));  
+    paint_effect[i].paint_mode(paint_effect[i].paint_config);
     
     memcpy(&blink_effect[i].blink_config , &blink_config, sizeof(blink_effect[i].blink_config));  
     blink_effect[i].blink_mode(blink_effect[i].blink_config);

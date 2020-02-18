@@ -11,19 +11,26 @@
       
   }
 
+  void PaintEffect::assign_id(uint8_t id_assigned){
+    
+      this->id_assigned = id_assigned; 
+  }
 
 
 uint8_t PaintEffect::paint_mode(struct leds_paint paint_config){
 
-      
-      uint8_t  id = paint_config.id;
-      uint8_t  color_R = paint_config.color_R;
-      uint8_t  color_G = paint_config.color_G;
-      uint8_t  color_B = paint_config.color_B;
-      uint16_t start_led = paint_config.start_led;
-      uint16_t end_led = paint_config.end_led;
-      bool     enabled = paint_config.enabled;
+     
+      // Updated internal values 
+      if(paint_config.id == id_assigned){
 
+          color_R = paint_config.color_R;
+          color_G = paint_config.color_G;
+          color_B = paint_config.color_B;
+          start_led = paint_config.start_led;
+          end_led = paint_config.end_led;
+          enabled = paint_config.enabled;
+            
+      }
 
 
     // Detecta si ha actualizado algun parámetro de la tira. Esto permite que el microcontrolador
@@ -47,12 +54,20 @@ uint8_t PaintEffect::paint_mode(struct leds_paint paint_config){
     if(enabled){
 
         if(isUpdated){
+
+            isClear = false;
           
             //Nota: start_led cuenta los leds desde 1 mientras que fill() lo hace desde 0   
             pixels->fill(pixels->Color(color_R, color_G, color_B), start_led-1 , paint_pixels);
             pixels->show();
             isUpdated = false; // Se ha actualizado la tira led
         }
+    }
+    
+    else if (!isClear){
+        pixels->fill(pixels->Color(0, 0, 0), start_led-1, paint_pixels);
+        pixels->show();
+        isClear = true;
     }
 
 

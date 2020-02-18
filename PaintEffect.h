@@ -18,6 +18,15 @@
       uint16_t paint_pixels = 0;  // Numero de pixeles involucrados en realizar el efecto blink
       uint8_t last_color_R = 0, last_color_G = 0, last_color_B = 0;
       uint16_t last_start_led = 0, last_end_led = 0;
+      bool isClear = true;
+
+      uint8_t  id_assigned = 0;
+      uint8_t  color_R = 0;
+      uint8_t  color_G = 0;
+      uint8_t  color_B = 0;
+      uint16_t start_led = 0;
+      uint16_t end_led = 0;
+      bool     enabled = false;
 
     public:
     
@@ -46,6 +55,7 @@
 
 
       uint8_t paint_mode( struct leds_paint paint_config);
+      void assign_id(uint8_t id_assigned);
  
   };
 
