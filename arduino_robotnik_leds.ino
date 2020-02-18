@@ -40,6 +40,10 @@
  *       propuesta es que cuando se añada la nueva zona, el resto de zonas activas se reseteen. Esto provoca que los 
  *       leds que usen el mismo modo se apaguen para volver a su zona de inicio y esteticamente no puede quedar bien.
  *
+ * Terminar de poner el vector al resto de efectos
+ * id debe ser string en mensaje
+ * Vector dinamico en función del id máximo asignado o en función del numero de IDs existentes
+ * Servicio para apagar todos los efectos
  */
 
 #include <Adafruit_NeoPixel.h>
@@ -71,15 +75,30 @@ bool     paint_enabled = false;
 
 
 /* Variables globales para el modo Blink (provisional, implementar un HandleMode) */
-uint8_t  blink_id = 0;
-uint8_t  blink_color_R = 0;
-uint8_t  blink_color_G = 0;
-uint8_t  blink_color_B = 0;
-uint16_t blink_start_led = 0;
-uint16_t blink_end_led = 0;
-uint16_t blink_ms_on = 0;
-uint16_t blink_ms_off = 0;
-bool     blink_enabled = false;
+struct blink_leds{
+
+    blink_leds(): 
+        id(0),
+        color_R(0),
+        color_G(0),
+        color_B(0),
+        start_led(0),
+        end_led(0),
+        ms_on (0),
+        ms_off (0),
+        enabled(false) {}
+    
+    uint8_t  id;
+    uint8_t  color_R;
+    uint8_t  color_G;
+    uint8_t  color_B;
+    uint16_t start_led;
+    uint16_t end_led;
+    uint16_t ms_on = 0;
+    uint16_t ms_off = 0;
+    bool     enabled;
+    
+    } blink_config;
 
 
 /* Variables globales para el modo Shift (provisional, implementar un HandleMode) */
@@ -105,8 +124,9 @@ Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 ShiftEffect effect_1(pixels);
 ShiftEffect effect_2(pixels);
 
-BlinkEffect effect_3(pixels);
-BlinkEffect effect_4(pixels);
+//BlinkEffect effect_3(pixels);
+//BlinkEffect effect_4(pixels);
+BlinkEffect blink_effect[5](pixels);
 
 PaintEffect effect_5(pixels);
 PaintEffect effect_6(pixels);
@@ -133,15 +153,15 @@ void callback_paint(const LedsPaint::Request & req, LedsPaint::Response & res){
 
 void callback_blink(const LedsBlink::Request & req, LedsBlink::Response & res){
 
-  blink_id = req.blink_id;
-  blink_color_R = req.color_R;
-  blink_color_G = req.color_G;
-  blink_color_B = req.color_B;
-  blink_start_led = req.start_led;
-  blink_end_led = req.end_led;
-  blink_ms_on = req.ms_on;
-  blink_ms_off = req.ms_off; 
-  blink_enabled = req.enabled;
+  blink_config.id = req.blink_id;
+  blink_config.color_R = req.color_R;
+  blink_config.color_G = req.color_G;
+  blink_config.color_B = req.color_B;
+  blink_config.start_led = req.start_led;
+  blink_config.end_led = req.end_led;
+  blink_config.ms_on = req.ms_on;
+  blink_config.ms_off = req.ms_off; 
+  blink_config.enabled = req.enabled;
   
 }
 
@@ -191,6 +211,13 @@ void setup()
   digitalWrite(13,LOW);
 
   Serial.begin(2000000);
+
+  
+  blink_effect[0].assign_id(0);
+  blink_effect[1].assign_id(1);
+  blink_effect[2].assign_id(2);
+  blink_effect[3].assign_id(3);
+  blink_effect[4].assign_id(4);
 }
 
 void loop()
@@ -200,10 +227,37 @@ void loop()
       timeout_system = 0;
       nh.spinOnce();
   }
+
   
 
+  /*
+  effect_3.blink_config.id = blink_id;
+  effect_3.blink_config.color_R = blink_color_R;
+  effect_3.blink_config.color_G = blink_color_G;
+  effect_3.blink_config.color_B = blink_color_B;
+  effect_3.blink_config.start_led = blink_start_led;
+  effect_3.blink_config.end_led = blink_end_led;
+  effect_3.blink_config.ms_on = blink_ms_on;
+  effect_3.blink_config.ms_off = blink_ms_off;
+  effect_3.blink_config.enabled = blink_enabled;
+  */
 
+  
+  for(int i=0; i < 5; i++){
+    
+    memcpy(&blink_effect[i].blink_config , &blink_config, sizeof(blink_effect[i].blink_config));  
+    blink_effect[i].blink_mode(blink_effect[i].blink_config);
+  
+  }
+  
+/*
+    memcpy(&blink_effect[1].blink_config , &blink_config, sizeof(blink_effect[1].blink_config));  
+    blink_effect[1].blink_mode(blink_effect[1].blink_config);
 
+    memcpy(&blink_effect[2].blink_config , &blink_config, sizeof(blink_effect[2].blink_config));  
+    blink_effect[2].blink_mode(blink_effect[2].blink_config);
+  */
+/*
   effect_1.shift_config.id = 0;
   effect_1.shift_config.color_R = 0;
   effect_1.shift_config.color_G = 20;
@@ -284,8 +338,38 @@ void loop()
    
   effect_6.paint_mode(effect_6.paint_config);
 
+*/
 
 
+
+
+
+/*
+  blink_effect[1].blink_config.id = 1;
+  blink_effect[1].blink_config.color_R = 0;
+  blink_effect[1].blink_config.color_G = 0;
+  blink_effect[1].blink_config.color_B = 21;
+  blink_effect[1].blink_config.start_led = 1;
+  blink_effect[1].blink_config.end_led = 15;
+  blink_effect[1].blink_config.ms_on = 150;
+  blink_effect[1].blink_config.ms_off = 150;
+  blink_effect[1].blink_config.enabled = true;
+   
+  blink_effect[1].blink_mode( blink_effect[1].blink_config);
+
+
+  blink_effect[2].blink_config.id = 2;
+  blink_effect[2].blink_config.color_R = 0;
+  blink_effect[2].blink_config.color_G = 21;
+  blink_effect[2].blink_config.color_B = 0;
+  blink_effect[2].blink_config.start_led = 16;
+  blink_effect[2].blink_config.end_led = 30;
+  blink_effect[2].blink_config.ms_on = 150;
+  blink_effect[2].blink_config.ms_off = 150;
+  blink_effect[2].blink_config.enabled = true;
+   
+  blink_effect[2].blink_mode( blink_effect[2].blink_config);
+*/
 
    
 }

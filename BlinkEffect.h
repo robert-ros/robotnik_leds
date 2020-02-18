@@ -18,8 +18,16 @@
       uint8_t blink_state = 0;   //Estado del modo blink
       elapsedMillis blink_time;  //Tiempo transcurrido entre un intervalo
       bool isClear = true;       //Indica si hay que limpiar (apagar los leds) la zona donde ha trabajado el modo blink cuando ha terminado
-  
 
+      uint8_t  id_assigned = 0;
+      uint8_t  color_R = 0;
+      uint8_t  color_G = 0;
+      uint8_t  color_B = 0;
+      uint16_t start_led = 0;
+      uint16_t end_led = 0;
+      uint16_t ms_on = 0;
+      uint16_t ms_off = 0;
+      bool     enabled = false;
 
     public:
     
@@ -52,6 +60,8 @@
 
 
       uint8_t blink_mode( struct leds_blink blink_config);
+
+      void assign_id(uint8_t id_assigned);
  
   };
 

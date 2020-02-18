@@ -9,20 +9,28 @@
       
   }
 
+  void BlinkEffect::assign_id(uint8_t id_assigned){
+    
+      this->id_assigned = id_assigned; 
+  }
 
 
   uint8_t BlinkEffect::blink_mode(struct leds_blink blink_config) {
 
-      uint8_t  id = blink_config.id;
-      uint8_t  color_R = blink_config.color_R;
-      uint8_t  color_G = blink_config.color_G;
-      uint8_t  color_B = blink_config.color_B;
-      uint16_t start_led = blink_config.start_led;
-      uint16_t end_led = blink_config.end_led;
-      uint16_t ms_on = blink_config.ms_on;
-      uint16_t ms_off = blink_config.ms_off;
-      bool     enabled = blink_config.enabled;
-  
+      // Updated internal values 
+      if(blink_config.id == id_assigned){
+
+        color_R = blink_config.color_R;
+        color_G = blink_config.color_G;
+        color_B = blink_config.color_B;
+        start_led = blink_config.start_led;
+        end_led = blink_config.end_led;
+        ms_on = blink_config.ms_on;
+        ms_off = blink_config.ms_off;
+        enabled = blink_config.enabled;
+            
+      }
+      
 
       blink_pixels = end_led - start_led + 1; // Por ejemplo start: 4, end: 2 Hay 4-2+1 = 3 pixeles involucrados
   
