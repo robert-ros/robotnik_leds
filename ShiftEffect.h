@@ -20,6 +20,22 @@
       bool isClear = true;   // Indicates if the area needs to be cleaned (turn off the LEDs) where the shift mode worked when finished
       uint16_t last_start_led = 0, last_end_led, last_shift_pixels = 0;
 
+      float shift_time_ms = 0;
+      float speed_per_pixel = 0;
+      float shift_time_compensation=0;
+
+      
+      uint8_t  id_assigned = 0;
+      uint8_t  color_R = 0;
+      uint8_t  color_G = 0;
+      uint8_t  color_B = 0;
+      uint16_t start_led = 0;
+      uint16_t end_led = 0;
+      String   direction = "right";
+      uint16_t speed = 0;
+      uint16_t sleep = 0;
+      bool     enabled = false;
+
       
     public:
     
@@ -54,6 +70,8 @@
 
 
       uint8_t shift_mode( struct leds_shift shift_config);
+      
+      void assign_id(uint8_t id_assigned);
  
   };
 

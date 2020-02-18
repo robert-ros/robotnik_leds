@@ -94,14 +94,15 @@ struct blink_leds{
     uint8_t  color_B;
     uint16_t start_led;
     uint16_t end_led;
-    uint16_t ms_on = 0;
-    uint16_t ms_off = 0;
+    uint16_t ms_on;
+    uint16_t ms_off;
     bool     enabled;
     
     } blink_config;
 
 
 /* Variables globales para el modo Shift (provisional, implementar un HandleMode) */
+/*
 uint8_t  shift_id = 0;
 uint8_t  shift_color_R = 0;
 uint8_t  shift_color_G = 0;
@@ -112,6 +113,34 @@ String   shift_direction = "right";
 uint16_t shift_speed = 0;
 uint16_t shift_sleep = 0;
 bool     shift_enabled = false;
+*/
+
+struct shift_leds{
+
+    shift_leds(): 
+        id(0),
+        color_R(0),
+        color_G(0),
+        color_B(0),
+        start_led(0),
+        end_led(0),
+        direction("right"),
+        speed (0),
+        sleep (0),
+        enabled(false) {}
+    
+    uint8_t  id;
+    uint8_t  color_R;
+    uint8_t  color_G;
+    uint8_t  color_B;
+    uint16_t start_led;
+    uint16_t end_led;
+    String   direction;
+    uint16_t speed;
+    uint16_t sleep;
+    bool     enabled;
+    
+    } shift_config;
 
 
 
@@ -124,14 +153,14 @@ Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 ShiftEffect effect_1(pixels);
 ShiftEffect effect_2(pixels);
 
-//BlinkEffect effect_3(pixels);
-//BlinkEffect effect_4(pixels);
+ShiftEffect shift_effect[5](pixels);
+
 BlinkEffect blink_effect[5](pixels);
 
 PaintEffect effect_5(pixels);
 PaintEffect effect_6(pixels);
 
-int i;
+
 
 elapsedMillis timeout_system;
 
@@ -168,16 +197,16 @@ void callback_blink(const LedsBlink::Request & req, LedsBlink::Response & res){
 
 void callback_shift(const LedsShift::Request & req, LedsShift::Response & res){
 
-  shift_id = req.shift_id;
-  shift_color_R = req.color_R;
-  shift_color_G = req.color_G;
-  shift_color_B = req.color_B;
-  shift_start_led = req.start_led;
-  shift_end_led = req.end_led;
-  shift_direction = req.direction;
-  shift_speed = req.speed;
-  shift_sleep = req.sleep;
-  shift_enabled = req.enabled;
+  shift_config.id = req.shift_id;
+  shift_config.color_R = req.color_R;
+  shift_config.color_G = req.color_G;
+  shift_config.color_B = req.color_B;
+  shift_config.start_led = req.start_led;
+  shift_config.end_led = req.end_led;
+  shift_config.direction = req.direction;
+  shift_config.speed = req.speed;
+  shift_config.sleep = req.sleep;
+  shift_config.enabled = req.enabled;
 
 }
 
@@ -212,12 +241,13 @@ void setup()
 
   Serial.begin(2000000);
 
+  for(int i = 0; i<5; i++){
+      
+      blink_effect[i].assign_id(i);
+      shift_effect[i].assign_id(i);
+      
+  }
   
-  blink_effect[0].assign_id(0);
-  blink_effect[1].assign_id(1);
-  blink_effect[2].assign_id(2);
-  blink_effect[3].assign_id(3);
-  blink_effect[4].assign_id(4);
 }
 
 void loop()
@@ -242,13 +272,17 @@ void loop()
   effect_3.blink_config.enabled = blink_enabled;
   */
 
-  
+ 
   for(int i=0; i < 5; i++){
     
     memcpy(&blink_effect[i].blink_config , &blink_config, sizeof(blink_effect[i].blink_config));  
     blink_effect[i].blink_mode(blink_effect[i].blink_config);
+
+    memcpy(&shift_effect[i].shift_config , &shift_config, sizeof(shift_effect[i].shift_config));  
+    shift_effect[i].shift_mode(shift_effect[i].shift_config);
   
   }
+
   
 /*
     memcpy(&blink_effect[1].blink_config , &blink_config, sizeof(blink_effect[1].blink_config));  
@@ -257,6 +291,12 @@ void loop()
     memcpy(&blink_effect[2].blink_config , &blink_config, sizeof(blink_effect[2].blink_config));  
     blink_effect[2].blink_mode(blink_effect[2].blink_config);
   */
+
+/*
+    memcpy(&shift_effect[1].shift_config , &shift_config, sizeof(shift_effect[1].shift_config));  
+    shift_effect[1].shift_mode(shift_effect[1].shift_config);
+*/
+  
 /*
   effect_1.shift_config.id = 0;
   effect_1.shift_config.color_R = 0;
@@ -371,5 +411,20 @@ void loop()
   blink_effect[2].blink_mode( blink_effect[2].blink_config);
 */
 
+
+
+/*
+  shift_effect[1].shift_config.id = 1;
+  shift_effect[1].shift_config.color_R = 0;
+  shift_effect[1].shift_config.color_G = 0;
+  shift_effect[1].shift_config.color_B = 21;
+  shift_effect[1].shift_config.start_led = 11;
+  shift_effect[1].shift_config.end_led = 20;
+  shift_effect[1].shift_config.direction = "left";
+  shift_effect[1].shift_config.speed = 500;
+  shift_effect[1].shift_config.sleep = 0;
+  shift_effect[1].shift_config.enabled = true;
    
+  shift_effect[1].shift_mode( shift_effect[1].shift_config);
+  */ 
 }

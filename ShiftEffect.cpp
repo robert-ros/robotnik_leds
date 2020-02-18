@@ -9,20 +9,29 @@
       
   }
 
+  void ShiftEffect::assign_id(uint8_t id_assigned){
+    
+      this->id_assigned = id_assigned; 
+  }
+
 
   uint8_t ShiftEffect::shift_mode(struct leds_shift shift_config) {
 
+      // Updated internal values 
+      if(shift_config.id == id_assigned){
 
-      uint8_t  id = shift_config.id;
-      uint8_t  color_R = shift_config.color_R;
-      uint8_t  color_G = shift_config.color_G;
-      uint8_t  color_B = shift_config.color_B;
-      uint16_t start_led = shift_config.start_led;
-      uint16_t end_led = shift_config.end_led;
-      String   direction = shift_config.direction;
-      uint16_t speed = shift_config.speed;
-      uint16_t sleep = shift_config.sleep;
-      bool     enabled = shift_config.enabled;
+          color_R = shift_config.color_R;
+          color_G = shift_config.color_G;
+          color_B = shift_config.color_B;
+          start_led = shift_config.start_led;
+          end_led = shift_config.end_led;
+          direction = shift_config.direction;
+          speed = shift_config.speed;
+          sleep = shift_config.sleep;
+          enabled = shift_config.enabled;
+               
+      }
+      
 
   
       shift_pixels = end_led - start_led + 1; // Por ejemplo start: 4, end: 2 Hay 4-2+1 = 3 pixeles involucrados
@@ -47,12 +56,13 @@
   
   
       if(enabled){
-  
+
+ 
           isClear = false;
   
-          float shift_time_ms = shift_time/1000.0;
-          float speed_per_pixel = float(speed)/float(shift_pixels+1);
-          static float shift_time_compensation=0;
+          shift_time_ms = shift_time/1000.0;
+          speed_per_pixel = float(speed)/float(shift_pixels+1);
+          shift_time_compensation=0;
           
           //Realiza el efecto shift
           if(shift_time_ms >= (speed_per_pixel+shift_time_compensation)){
