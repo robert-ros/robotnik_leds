@@ -20,15 +20,19 @@
       // Updated internal values 
       if(shift_config.id == id_assigned){
 
-          color_R = shift_config.color_R;
-          color_G = shift_config.color_G;
-          color_B = shift_config.color_B;
-          start_led = shift_config.start_led;
-          end_led = shift_config.end_led;
-          direction = shift_config.direction;
-          speed = shift_config.speed;
-          sleep = shift_config.sleep;
-          enabled = shift_config.enabled;
+        enabled = shift_config.enabled;
+
+        if(enabled){
+
+            color_R = shift_config.color_R;
+            color_G = shift_config.color_G;
+            color_B = shift_config.color_B;
+            start_led = shift_config.start_led;
+            end_led = shift_config.end_led;
+            direction = shift_config.direction;
+            speed = shift_config.speed;
+            sleep = shift_config.sleep;
+        }
                
       }
       

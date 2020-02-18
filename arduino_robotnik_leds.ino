@@ -42,15 +42,16 @@
  *       propuesta es que cuando se añada la nueva zona, el resto de zonas activas se reseteen. Esto provoca que los 
  *       leds que usen el mismo modo se apaguen para volver a su zona de inicio y esteticamente no puede quedar bien.
  *
- * Terminar de poner el vector al resto de efectos
  * id debe ser string en mensaje
- * Vector dinamico en función del id máximo asignado o en función del numero de IDs existentes
  * Servicio para apagar todos los efectos
+ * Servicio para ver los efectos activados
+ * Vector dinamico en función del id máximo asignado o en función del numero de IDs existentes
+
  */
 
 #include <Adafruit_NeoPixel.h>
 #include "ros.h"
-#include <std_msgs/String.h>
+#include <std_srvs/Trigger.h>
 #include "ShiftEffect.h"
 #include "BlinkEffect.h"
 #include "PaintEffect.h"
@@ -63,20 +64,9 @@ ros::NodeHandle  nh;
 using robotnik_leds::LedsPaint;
 using robotnik_leds::LedsBlink;
 using robotnik_leds::LedsShift;
+using std_srvs::Trigger;
 
-
-/* Variables globales para el modo paint, se llamará PAINT
-(provisional, implementar un HandleMode)*/
-/*
-uint8_t  paint_id = 0;
-uint8_t  paint_color_R = 0;
-uint8_t  paint_color_G = 0;
-uint8_t  paint_color_B = 0;
-uint16_t paint_start_led = 0;
-uint16_t paint_end_led = 0;
-bool     paint_enabled = false;
-*/
-
+/* Variables globales para el modo paint */
 struct paint_leds{
 
     paint_leds(): 
@@ -99,7 +89,7 @@ struct paint_leds{
     } paint_config;
 
 
-/* Variables globales para el modo Blink (provisional, implementar un HandleMode) */
+/* Variables globales para el modo Blink */
 struct blink_leds{
 
     blink_leds(): 
@@ -126,20 +116,7 @@ struct blink_leds{
     } blink_config;
 
 
-/* Variables globales para el modo Shift (provisional, implementar un HandleMode) */
-/*
-uint8_t  shift_id = 0;
-uint8_t  shift_color_R = 0;
-uint8_t  shift_color_G = 0;
-uint8_t  shift_color_B = 0;
-uint16_t shift_start_led = 0;
-uint16_t shift_end_led = 0;
-String   shift_direction = "right";
-uint16_t shift_speed = 0;
-uint16_t shift_sleep = 0;
-bool     shift_enabled = false;
-*/
-
+/* Variables globales para el modo Shift */
 struct shift_leds{
 
     shift_leds(): 
@@ -175,23 +152,12 @@ struct shift_leds{
 #define NUMPIXELS  130
 Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
-
 ShiftEffect shift_effect[5](pixels);
-
 BlinkEffect blink_effect[5](pixels);
-
-PaintEffect effect_5(pixels);
-PaintEffect effect_6(pixels);
-
 PaintEffect paint_effect[5](pixels);
 
 
-
-
-
 elapsedMillis timeout_system;
-
-
 
 
 void callback_paint(const LedsPaint::Request & req, LedsPaint::Response & res){
@@ -238,10 +204,48 @@ void callback_shift(const LedsShift::Request & req, LedsShift::Response & res){
 }
 
 
+void callback_clear(const Trigger::Request & req, Trigger::Response & res){
+
+
+  
+   for (int i= 0; i < 5; i++){
+    
+      paint_config.id = i;
+      paint_config.enabled = false;
+      memcpy(&paint_effect[i].paint_config , &paint_config, sizeof(paint_effect[i].paint_config));  
+      paint_effect[i].paint_mode(paint_effect[i].paint_config);
+
+      blink_config.id = i;
+      blink_config.enabled = false;
+      memcpy(&blink_effect[i].blink_config , &blink_config, sizeof(blink_effect[i].blink_config));  
+      blink_effect[i].blink_mode(blink_effect[i].blink_config);
+
+
+      shift_config.id = i;
+      shift_config.enabled = false;
+      memcpy(&shift_effect[i].shift_config , &shift_config, sizeof(shift_effect[i].shift_config));  
+      shift_effect[i].shift_mode(shift_effect[i].shift_config);
+
+   }
+   
+
+   /*
+   uint8_t test=3;
+   char cadena[16];
+   sprintf(cadena, "%d", test);
+   res.message = cadena;
+   */
+   res.success = true;
+   res.message = "All led effects have been disabled";
+  
+}
+
+
 ros::ServiceServer<LedsPaint::Request, LedsPaint::Response> server_paint_mode("robotnik_leds/set_leds/paint_mode",&callback_paint);
 ros::ServiceServer<LedsBlink::Request, LedsBlink::Response> server_blink_mode("robotnik_leds/set_leds/blink_mode",&callback_blink);
 ros::ServiceServer<LedsShift::Request, LedsShift::Response> server_shift_mode("robotnik_leds/set_leds/shift_mode",&callback_shift);
 
+ros::ServiceServer<Trigger::Request, Trigger::Response> server_clear_leds("robotnik_leds/clear_leds",&callback_clear);
 
 
 
@@ -259,6 +263,8 @@ void setup()
   nh.advertiseService(server_paint_mode);
   nh.advertiseService(server_blink_mode);
   nh.advertiseService(server_shift_mode);
+  nh.advertiseService(server_clear_leds);
+  
   pixels.begin();
   pixels.clear();
   pixels.show();
@@ -287,20 +293,6 @@ void loop()
   }
 
   
-
-  /*
-  effect_3.blink_config.id = blink_id;
-  effect_3.blink_config.color_R = blink_color_R;
-  effect_3.blink_config.color_G = blink_color_G;
-  effect_3.blink_config.color_B = blink_color_B;
-  effect_3.blink_config.start_led = blink_start_led;
-  effect_3.blink_config.end_led = blink_end_led;
-  effect_3.blink_config.ms_on = blink_ms_on;
-  effect_3.blink_config.ms_off = blink_ms_off;
-  effect_3.blink_config.enabled = blink_enabled;
-  */
-
- 
   for(int i=0; i < 5; i++){
 
     memcpy(&paint_effect[i].paint_config , &paint_config, sizeof(paint_effect[i].paint_config));  
@@ -315,147 +307,4 @@ void loop()
   }
 
   
-/*
-    memcpy(&blink_effect[1].blink_config , &blink_config, sizeof(blink_effect[1].blink_config));  
-    blink_effect[1].blink_mode(blink_effect[1].blink_config);
-
-    memcpy(&blink_effect[2].blink_config , &blink_config, sizeof(blink_effect[2].blink_config));  
-    blink_effect[2].blink_mode(blink_effect[2].blink_config);
-  */
-
-/*
-    memcpy(&shift_effect[1].shift_config , &shift_config, sizeof(shift_effect[1].shift_config));  
-    shift_effect[1].shift_mode(shift_effect[1].shift_config);
-*/
-  
-/*
-  effect_1.shift_config.id = 0;
-  effect_1.shift_config.color_R = 0;
-  effect_1.shift_config.color_G = 20;
-  effect_1.shift_config.color_B = 0;
-  effect_1.shift_config.start_led = 16;
-  effect_1.shift_config.end_led = 30;
-  effect_1.shift_config.direction = "left";
-  effect_1.shift_config.speed = 1000;
-  effect_1.shift_config.sleep = 1000;
-  effect_1.shift_config.enabled = true;
-  
-  effect_1.shift_mode(effect_1.shift_config);
-
-
-
-  effect_2.shift_config.id = 0;
-  effect_2.shift_config.color_R = 10;
-  effect_2.shift_config.color_G = 0;
-  effect_2.shift_config.color_B = 0;
-  effect_2.shift_config.start_led = 1;
-  effect_2.shift_config.end_led = 15;
-  effect_2.shift_config.direction = "right";
-  effect_2.shift_config.speed = 1000;
-  effect_2.shift_config.sleep = 1000;
-  effect_2.shift_config.enabled = true;
-   
-  effect_2.shift_mode( effect_2.shift_config);
-
-
-  effect_3.blink_config.id = 0;
-  effect_3.blink_config.color_R = 0;
-  effect_3.blink_config.color_G = 0;
-  effect_3.blink_config.color_B = 20;
-  effect_3.blink_config.start_led = 31;
-  effect_3.blink_config.end_led = 45;
-  effect_3.blink_config.ms_on = 750;
-  effect_3.blink_config.ms_off = 750;
-  effect_3.blink_config.enabled = true;
-   
-  effect_3.blink_mode(effect_3.blink_config);
-
-
-  
-  effect_4.blink_config.id = 0;
-  effect_4.blink_config.color_R = 0;
-  effect_4.blink_config.color_G = 10;
-  effect_4.blink_config.color_B = 10;
-  effect_4.blink_config.start_led = 46;
-  effect_4.blink_config.end_led = 60;
-  effect_4.blink_config.ms_on = 100;
-  effect_4.blink_config.ms_off = 100;
-  effect_4.blink_config.enabled = true;
-   
-  effect_4.blink_mode(effect_4.blink_config);
-
-
-
-  
-  effect_5.paint_config.id = 0;
-  effect_5.paint_config.color_R = 10;
-  effect_5.paint_config.color_G = 10;
-  effect_5.paint_config.color_B = 10;
-  effect_5.paint_config.start_led = 61;
-  effect_5.paint_config.end_led = 70;
-  effect_5.paint_config.enabled = true;
-   
-  effect_5.paint_mode(effect_5.paint_config);
-
-
-
-  effect_6.paint_config.id = 0;
-  effect_6.paint_config.color_R = 10;
-  effect_6.paint_config.color_G = 20;
-  effect_6.paint_config.color_B = 0;
-  effect_6.paint_config.start_led = 71;
-  effect_6.paint_config.end_led = 80;
-  effect_6.paint_config.enabled = true;
-   
-  effect_6.paint_mode(effect_6.paint_config);
-
-*/
-
-
-
-
-
-/*
-  blink_effect[1].blink_config.id = 1;
-  blink_effect[1].blink_config.color_R = 0;
-  blink_effect[1].blink_config.color_G = 0;
-  blink_effect[1].blink_config.color_B = 21;
-  blink_effect[1].blink_config.start_led = 1;
-  blink_effect[1].blink_config.end_led = 15;
-  blink_effect[1].blink_config.ms_on = 150;
-  blink_effect[1].blink_config.ms_off = 150;
-  blink_effect[1].blink_config.enabled = true;
-   
-  blink_effect[1].blink_mode( blink_effect[1].blink_config);
-
-
-  blink_effect[2].blink_config.id = 2;
-  blink_effect[2].blink_config.color_R = 0;
-  blink_effect[2].blink_config.color_G = 21;
-  blink_effect[2].blink_config.color_B = 0;
-  blink_effect[2].blink_config.start_led = 16;
-  blink_effect[2].blink_config.end_led = 30;
-  blink_effect[2].blink_config.ms_on = 150;
-  blink_effect[2].blink_config.ms_off = 150;
-  blink_effect[2].blink_config.enabled = true;
-   
-  blink_effect[2].blink_mode( blink_effect[2].blink_config);
-*/
-
-
-
-/*
-  shift_effect[1].shift_config.id = 1;
-  shift_effect[1].shift_config.color_R = 0;
-  shift_effect[1].shift_config.color_G = 0;
-  shift_effect[1].shift_config.color_B = 21;
-  shift_effect[1].shift_config.start_led = 11;
-  shift_effect[1].shift_config.end_led = 20;
-  shift_effect[1].shift_config.direction = "left";
-  shift_effect[1].shift_config.speed = 500;
-  shift_effect[1].shift_config.sleep = 0;
-  shift_effect[1].shift_config.enabled = true;
-   
-  shift_effect[1].shift_mode( shift_effect[1].shift_config);
-  */ 
 }

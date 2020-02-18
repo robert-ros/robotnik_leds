@@ -20,14 +20,19 @@
       // Updated internal values 
       if(blink_config.id == id_assigned){
 
-        color_R = blink_config.color_R;
-        color_G = blink_config.color_G;
-        color_B = blink_config.color_B;
-        start_led = blink_config.start_led;
-        end_led = blink_config.end_led;
-        ms_on = blink_config.ms_on;
-        ms_off = blink_config.ms_off;
-        enabled = blink_config.enabled;
+          enabled = blink_config.enabled;
+
+          if(enabled){
+          
+              color_R = blink_config.color_R;
+              color_G = blink_config.color_G;
+              color_B = blink_config.color_B;
+              start_led = blink_config.start_led;
+              end_led = blink_config.end_led;
+              ms_on = blink_config.ms_on;
+              ms_off = blink_config.ms_off;
+          
+          }
             
       }
       

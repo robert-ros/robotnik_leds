@@ -23,12 +23,15 @@ uint8_t PaintEffect::paint_mode(struct leds_paint paint_config){
       // Updated internal values 
       if(paint_config.id == id_assigned){
 
-          color_R = paint_config.color_R;
-          color_G = paint_config.color_G;
-          color_B = paint_config.color_B;
-          start_led = paint_config.start_led;
-          end_led = paint_config.end_led;
           enabled = paint_config.enabled;
+
+          if(enabled){
+            color_R = paint_config.color_R;
+            color_G = paint_config.color_G;
+            color_B = paint_config.color_B;
+            start_led = paint_config.start_led;
+            end_led = paint_config.end_led;
+          }
             
       }
 
@@ -37,7 +40,7 @@ uint8_t PaintEffect::paint_mode(struct leds_paint paint_config){
     // no actualice constantemente la tira, ya que el valor es siempre el mismo sino han habido cambios
 
     if(last_color_R != color_R || last_color_G != color_G || last_color_B != color_B ||
-       last_start_led != start_led || last_end_led != end_led){
+       last_start_led != start_led || last_end_led != end_led || last_enabled != enabled){
 
         //Algun parametro se ha actualizado
         isUpdated = true;
@@ -46,11 +49,13 @@ uint8_t PaintEffect::paint_mode(struct leds_paint paint_config){
         last_color_B = color_B;
         last_start_led = start_led;
         last_end_led = end_led;
+        last_enabled = enabled;
     }
 
     paint_pixels = end_led - start_led + 1; // Por ejemplo start: 4, end: 2 Hay 4-2+1 = 3 pixeles involucrados
 
-
+ 
+    
     if(enabled){
 
         if(isUpdated){
@@ -69,6 +74,8 @@ uint8_t PaintEffect::paint_mode(struct leds_paint paint_config){
         pixels->show();
         isClear = true;
     }
+
+
 
 
   return paint_state;
