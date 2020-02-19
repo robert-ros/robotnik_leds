@@ -1,36 +1,36 @@
 
-states_list:
-
-  -name: "EMERGENCY"
-   led_mode: "blink"
-   color: [20,0,0]
-   ms_on: 100
-   ms_off: 100
-
-
-  -name: "TURN_LEFT"
-   led_mode: "shift"
-   color: [20,0,0]
-   direction: "right"
-   speed: 500
-   sleep: 500
-
-  -name: "TURN_RIGHT"
-   led_mode: "shift"
-   color: [20,0,0]
-   direction: "left"
-   speed: 500
-   sleep: 500
+led_state_list:
+  
+  - name: "EMERGENCY"
+    led_mode: "blink"
+    color: [20, 0, 0]
+    ms_on: 100
+    ms_off: 100
 
 
-  -name: "FOWARD"
-   led_mode: "blink"
-   color: [0,0,20]
-   ms_on: 100
-   ms_off: 100
+  - name: "TURN_LEFT"
+    led_mode: "shift"
+    color: [20, 0, 0]
+    direction: "left"
+    speed: 500
+    sleep: 500
 
 
-  -name: "STOP"
-   led_mode: "paint"
-   color: [20,20,20]	
+  - name: "TURN_RIGHT"
+    led_mode: "shift"
+    color: [20, 0, 0]
+    direction: "right"
+    speed: 500
+    sleep: 500
 
+
+  - name: "FOWARD"
+    led_mode: "blink"
+    color: [0, 0, 20]
+    ms_on: 100
+    ms_off: 100
+
+
+  - name: "STOP"
+    led_mode: "paint"
+    color: [20 , 20, 20]

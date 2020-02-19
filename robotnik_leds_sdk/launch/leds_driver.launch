@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<launch>
+
+	<group ns = "robotnik_leds">
+		
+		<rosparam file="$(find robotnik_leds_sdk)/config/led_config.yaml"/>
+		<rosparam file="$(find robotnik_leds_sdk)/config/led_state.yaml"/> 
+
+		<node pkg="robotnik_leds_sdk" type="leds_driver.py" name="leds_driver_node" output="screen"/>
+
+	</group>
+
+
+
+</launch>
