@@ -19,7 +19,7 @@
       elapsedMillis blink_time;  //Tiempo transcurrido entre un intervalo
       bool isClear = true;       //Indica si hay que limpiar (apagar los leds) la zona donde ha trabajado el modo blink cuando ha terminado
 
-      uint8_t  id_assigned = 0;
+      String   id_assigned = 0;
       uint8_t  color_R = 0;
       uint8_t  color_G = 0;
       uint8_t  color_B = 0;
@@ -36,7 +36,7 @@
       struct leds_blink{
   
           leds_blink(): 
-              id(0),
+              id(""),
               color_R(0),
               color_G(0),
               color_B(0),
@@ -46,7 +46,7 @@
               ms_off (500),
               enabled(false) {}
           
-          uint8_t  id;
+          String   id;
           uint8_t  color_R;
           uint8_t  color_G;
           uint8_t  color_B;
@@ -61,7 +61,7 @@
 
       uint8_t blink_mode( struct leds_blink blink_config);
 
-      void assign_id(uint8_t id_assigned);
+      void assign_id(String id_assigned);
  
   };
 

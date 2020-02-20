@@ -21,7 +21,7 @@
       bool last_enabled = false;
       bool isClear = true;
 
-      uint8_t  id_assigned = 0;
+      String   id_assigned = "";
       uint8_t  color_R = 0;
       uint8_t  color_G = 0;
       uint8_t  color_B = 0;
@@ -36,7 +36,7 @@
       struct leds_paint{
   
           leds_paint(): 
-              id(0),
+              id(""),
               color_R(0),
               color_G(0),
               color_B(0),
@@ -44,7 +44,7 @@
               end_led(0),
               enabled(false) {}
           
-          uint8_t  id;
+          String   id;
           uint8_t  color_R;
           uint8_t  color_G;
           uint8_t  color_B;
@@ -56,7 +56,7 @@
 
 
       uint8_t paint_mode( struct leds_paint paint_config);
-      void assign_id(uint8_t id_assigned);
+      void assign_id(String id_assigned);
  
   };
 

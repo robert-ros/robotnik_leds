@@ -9,7 +9,7 @@
       
   }
 
-  void BlinkEffect::assign_id(uint8_t id_assigned){
+  void BlinkEffect::assign_id(String id_assigned){
     
       this->id_assigned = id_assigned; 
   }
@@ -18,7 +18,7 @@
   uint8_t BlinkEffect::blink_mode(struct leds_blink blink_config) {
 
       // Updated internal values 
-      if(blink_config.id == id_assigned){
+      if(id_assigned.equals(blink_config.id)){
 
           enabled = blink_config.enabled;
 

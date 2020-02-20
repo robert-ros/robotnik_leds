@@ -43,7 +43,7 @@
  *       leds que usen el mismo modo se apaguen para volver a su zona de inicio y esteticamente no puede quedar bien.
  *
  * id debe ser string en mensaje
- * Servicio para apagar todos los efectos
+ * Asignacion de id númerico a id string
  * Servicio para ver los efectos activados
  * Vector dinamico en función del id máximo asignado o en función del numero de IDs existentes
 
@@ -51,7 +51,7 @@
 
 #include <Adafruit_NeoPixel.h>
 #include "ros.h"
-#include <std_srvs/Trigger.h>
+
 #include "ShiftEffect.h"
 #include "BlinkEffect.h"
 #include "PaintEffect.h"
@@ -59,6 +59,7 @@
 #include <robotnik_leds/LedsPaint.h>
 #include <robotnik_leds/LedsBlink.h>
 #include <robotnik_leds/LedsShift.h>
+#include <std_srvs/Trigger.h>
 
 ros::NodeHandle  nh;
 using robotnik_leds::LedsPaint;
@@ -70,7 +71,7 @@ using std_srvs::Trigger;
 struct paint_leds{
 
     paint_leds(): 
-        id(0),
+        id(""),
         color_R(0),
         color_G(0),
         color_B(0),
@@ -78,7 +79,7 @@ struct paint_leds{
         end_led(0),
         enabled(false) {}
     
-    uint8_t  id;
+    String   id;
     uint8_t  color_R;
     uint8_t  color_G;
     uint8_t  color_B;
@@ -93,7 +94,7 @@ struct paint_leds{
 struct blink_leds{
 
     blink_leds(): 
-        id(0),
+        id(""),
         color_R(0),
         color_G(0),
         color_B(0),
@@ -103,7 +104,7 @@ struct blink_leds{
         ms_off (0),
         enabled(false) {}
     
-    uint8_t  id;
+    String   id;
     uint8_t  color_R;
     uint8_t  color_G;
     uint8_t  color_B;
@@ -120,7 +121,7 @@ struct blink_leds{
 struct shift_leds{
 
     shift_leds(): 
-        id(0),
+        id(""),
         color_R(0),
         color_G(0),
         color_B(0),
@@ -131,7 +132,7 @@ struct shift_leds{
         sleep (0),
         enabled(false) {}
     
-    uint8_t  id;
+    String   id;
     uint8_t  color_R;
     uint8_t  color_G;
     uint8_t  color_B;
@@ -152,16 +153,17 @@ struct shift_leds{
 #define NUMPIXELS  130
 Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
-ShiftEffect shift_effect[5](pixels);
-BlinkEffect blink_effect[5](pixels);
-PaintEffect paint_effect[5](pixels);
+#define NUM_EFFECTS 5
+ShiftEffect shift_effect[NUM_EFFECTS](pixels);
+BlinkEffect blink_effect[NUM_EFFECTS](pixels);
+PaintEffect paint_effect[NUM_EFFECTS](pixels);
 
 
 elapsedMillis timeout_system;
 
 
 void callback_paint(const LedsPaint::Request & req, LedsPaint::Response & res){
-
+  
   paint_config.id = req.paint_id;
   paint_config.color_R = req.color_R;
   paint_config.color_G = req.color_G;
@@ -208,26 +210,26 @@ void callback_clear(const Trigger::Request & req, Trigger::Response & res){
 
 
   
-   for (int i= 0; i < 5; i++){
+   for (int i= 0; i < NUM_EFFECTS; i++){
     
-      paint_config.id = i;
+      paint_config.id = String(i);
       paint_config.enabled = false;
       memcpy(&paint_effect[i].paint_config , &paint_config, sizeof(paint_effect[i].paint_config));  
       paint_effect[i].paint_mode(paint_effect[i].paint_config);
 
-      blink_config.id = i;
+      blink_config.id = String(i);
       blink_config.enabled = false;
       memcpy(&blink_effect[i].blink_config , &blink_config, sizeof(blink_effect[i].blink_config));  
       blink_effect[i].blink_mode(blink_effect[i].blink_config);
 
 
-      shift_config.id = i;
+      shift_config.id = String(i);
       shift_config.enabled = false;
       memcpy(&shift_effect[i].shift_config , &shift_config, sizeof(shift_effect[i].shift_config));  
       shift_effect[i].shift_mode(shift_effect[i].shift_config);
 
    }
-   
+
 
    /*
    uint8_t test=3;
@@ -274,11 +276,12 @@ void setup()
 
   Serial.begin(2000000);
 
-  for(int i = 0; i<5; i++){
+  for(int i = 0; i < NUM_EFFECTS; i++){
 
-      paint_effect[i].assign_id(i);
-      blink_effect[i].assign_id(i);
-      shift_effect[i].assign_id(i);
+    
+      paint_effect[i].assign_id(String(i));
+      blink_effect[i].assign_id(String(i));
+      shift_effect[i].assign_id(String(i));
       
   }
   
@@ -293,7 +296,7 @@ void loop()
   }
 
   
-  for(int i=0; i < 5; i++){
+  for(int i=0; i < NUM_EFFECTS; i++){
 
     memcpy(&paint_effect[i].paint_config , &paint_config, sizeof(paint_effect[i].paint_config));  
     paint_effect[i].paint_mode(paint_effect[i].paint_config);

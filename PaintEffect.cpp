@@ -11,7 +11,7 @@
       
   }
 
-  void PaintEffect::assign_id(uint8_t id_assigned){
+  void PaintEffect::assign_id(String id_assigned){
     
       this->id_assigned = id_assigned; 
   }
@@ -21,7 +21,7 @@ uint8_t PaintEffect::paint_mode(struct leds_paint paint_config){
 
      
       // Updated internal values 
-      if(paint_config.id == id_assigned){
+      if(id_assigned.equals(paint_config.id)){
 
           enabled = paint_config.enabled;
 

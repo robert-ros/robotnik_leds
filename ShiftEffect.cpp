@@ -9,7 +9,7 @@
       
   }
 
-  void ShiftEffect::assign_id(uint8_t id_assigned){
+  void ShiftEffect::assign_id(String id_assigned){
     
       this->id_assigned = id_assigned; 
   }
@@ -18,7 +18,7 @@
   uint8_t ShiftEffect::shift_mode(struct leds_shift shift_config) {
 
       // Updated internal values 
-      if(shift_config.id == id_assigned){
+      if(id_assigned.equals(shift_config.id)){
 
         enabled = shift_config.enabled;
 
