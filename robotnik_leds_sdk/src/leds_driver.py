@@ -3,6 +3,7 @@
 
 import rospy
 from std_msgs.msg import String
+from robotnik_leds_sdk.srv import SetLeds, SetLedsResponse
 
 def set_led_driver(led_config, state_config, enable):
 
@@ -45,17 +46,18 @@ def set_led_driver(led_config, state_config, enable):
 
 def shift_mode_led_driver(name, leds_zone, channel, type, color, direction, speed, sleep, enable):
 
-    rospy.loginfo(name)
+    rospy.loginfo("Shift mode!")
 
 
 def blink_mode_led_driver(name, leds_zone, channel, type, color, ms_on, ms_off, enable):
 
-    rospy.loginfo(name)
+    rospy.loginfo("Blink mode!")
 
 
 def paint_mode_led_driver(name, leds_zone, channel, type, color, enable):
 
-    rospy.loginfo(name)
+    rospy.loginfo("Paint mode!")
+
 
 
 
@@ -79,19 +81,25 @@ def get_led_config(led_name_req):
             _channel = list[i].get("channel")
             _type = list[i].get("type")
 
-            #rospy.loginfo("Name '" + _led_name + "' found:\n"+ 
-            #"led_zone: " + str(_leds_zone) +  "\n" + 
-            #"channel: "  + str(_channel)   +  "\n" +
-            #"type: "     + str(_type)      +  "\n" +
-            #"---------")
+
+
+            rospy.loginfo("Name '" + _led_name + "' found:\n"+ 
+            "led_zone: " + str(_leds_zone) +  "\n" + 
+            "channel: "  + str(_channel)   +  "\n" +
+            "type: "     + str(_type)      +  "\n" +
+            "---------")
 
 
     if _nameFound == False:
 
         rospy.logerr("Name '" + led_name_req + "' not found in rosparam server. Check that the name exists in the led_config.yaml")
+        _led_name = None
+        _leds_zone = None
+        _channel = None
+        _type = None
 
 
-    return [_led_name, _leds_zone, _channel, _type]
+    return [_nameFound, _led_name, _leds_zone, _channel, _type]
 
 
 
@@ -114,82 +122,97 @@ def get_led_state(led_state_req):
         if _state_name == led_state_req:
 
             _stateFound = True
-            #rospy.loginfo("State '" + _state_name + "' found")
+            _state_config[0] = _stateFound
+
+            rospy.loginfo("State '" + _state_name + "' found")
 
             _mode = list[i].get("mode")
 
             if _mode == "paint":
 
-                _state_config[0] = list[i].get("mode") 
-                _state_config[1] = list[i].get("color")          
+                _state_config[1] = list[i].get("mode") 
+                _state_config[2] = list[i].get("color")          
             
 
             if _mode == "blink":
 
-                _state_config[0] = list[i].get("mode")
-                _state_config[1] = list[i].get("color") 
-                _state_config[2] = list[i].get("ms_on")
-                _state_config[3] = list[i].get("ms_off")  
+                _state_config[1] = list[i].get("mode")
+                _state_config[2] = list[i].get("color") 
+                _state_config[3] = list[i].get("ms_on")
+                _state_config[4] = list[i].get("ms_off")  
 
 
             if _mode == "shift":
 
-                _state_config[0] = list[i].get("mode")
-                _state_config[4] = list[i].get("color") 
-                _state_config[5] = list[i].get("direction")
-                _state_config[6] = list[i].get("speed")
-                _state_config[7] = list[i].get("sleep")
+                _state_config[1] = list[i].get("mode")
+                _state_config[2] = list[i].get("color") 
+                _state_config[3] = list[i].get("direction")
+                _state_config[4] = list[i].get("speed")
+                _state_config[5] = list[i].get("sleep")
 
     if _stateFound == False:
 
         rospy.logerr("Name '" + led_state_req + "' not found in rosparam server. Check that the name exists in the led_state.yaml")
-  
+        _state_config[0] = _stateFound
 
 
     return _state_config         
 
 
+
+def leds_service_callback(req):
+
+
+    res = SetLedsResponse()
+
+    led_name_req = req.leds_name
+    led_state_req = req.state
+    led_enable_req = req.enable
+
+
+    led_config = get_led_config(led_name_req)
+    state_config = get_led_state(led_state_req)
+
+    if led_config[0] and state_config[0] :
+
+        set_led_driver(led_config,state_config, led_enable_req )
+        res.success = True
+        res.message = str(led_name_req) + " has been set to " + str(led_state_req) + " mode and is " + str (led_enable_req)
+
+    else:
+        res.success = True
+        res.message = "Error: led_name or state_name does not exist"
+
+
+    return res
+
+
+
 def main():
 
-    pub = rospy.Publisher('chatter', String, queue_size=10)
-    rospy.init_node('talker', anonymous=True)
-    rate = rospy.Rate(10) # 10hz
+    # Init node
+    rospy.init_node('leds_driver_server')
+
+    # Init service
+    leds_service = rospy.Service('/leds_service', SetLeds, leds_service_callback)
 
 
     while not rospy.is_shutdown():
         
-        #hello_str = "hello world %s" % rospy.get_time()
-        #rospy.loginfo(hello_str)
-        #pub.publish(hello_str)
-    
+
         #shift_mode_led_driver("left_led", [1,5], 0, "RGB", [0,0,20], "right", 1000, 1000, True)
 
-
-        led_name_req = "led_front_right"
-        led_state_req = "EMERGENCY"
-        led_enabled = True;
-
-
-        led_config = get_led_config(led_name_req)
-        print(led_config)
-        state_config = get_led_state(led_state_req)
+        dummy = 1
+        #led_name_req = "led_front_right"
+        #led_state_req = "EMERGENCY"
+        #led_enabled = True;
 
 
-        set_led_driver(led_config,state_config, led_enabled )
+        #led_config = get_led_config(led_name_req)
+        #state_config = get_led_state(led_state_req)
+        #set_led_driver(led_config,state_config, led_enabled )
 
-
-
-
-        #print(list)
-
-         
-           
-         
-
-
-
-        
-        rate.sleep()
+       
 
 
 if __name__ == '__main__':
