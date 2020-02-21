@@ -164,8 +164,10 @@ PaintEffect paint_effect[NUM_EFFECTS](pixels);
 
 elapsedMillis timeout_system;
 
-/*
+
 void callback_paint(const LedsPaint::Request & req, LedsPaint::Response & res){
+
+  int task_id;
   
   paint_config.id = req.paint_id;
   paint_config.color_R = req.color_R;
@@ -174,6 +176,33 @@ void callback_paint(const LedsPaint::Request & req, LedsPaint::Response & res){
   paint_config.start_led = req.start_led;
   paint_config.end_led = req.end_led;
   paint_config.enabled = req.enabled;
+
+  if(req.enabled){
+
+      //Create or edit a paint_mode
+      id_handler.save_id(req.paint_id); 
+      task_id = id_handler.get_serial_id(req.paint_id);
+      paint_effect[task_id].assign_id(req.paint_id);
+    
+  }
+  else {
+
+    //Check if id exists
+    if(id_handler.exist_id(req.paint_id)){
+
+        // If id exists, then delete it
+        
+        task_id = id_handler.get_serial_id(req.paint_id);
+        id_handler.delete_id(req.paint_id);
+    
+        //Disable effect (enabled = false)
+        memcpy(&paint_effect[task_id].paint_config , &paint_config, sizeof(paint_effect[task_id].paint_config));  
+        paint_effect[task_id].paint_mode(paint_effect[task_id].paint_config);
+    
+        //Free the task of the assigned id
+        paint_effect[task_id].assign_id("");
+    }
+  }
   
 }
 
@@ -189,11 +218,43 @@ void callback_blink(const LedsBlink::Request & req, LedsBlink::Response & res){
   blink_config.ms_on = req.ms_on;
   blink_config.ms_off = req.ms_off; 
   blink_config.enabled = req.enabled;
+
+  int task_id;
+
+  if(req.enabled){
+
+      //Create or edit a blink_mode
+      id_handler.save_id(req.blink_id); 
+      task_id = id_handler.get_serial_id(req.blink_id);
+      blink_effect[task_id].assign_id(req.blink_id);
+    
+  }
+  else {
+
+    //Check if id exists
+    if(id_handler.exist_id(req.blink_id)){
+
+        // If id exists, then delete it
+        
+        task_id = id_handler.get_serial_id(req.blink_id);
+        id_handler.delete_id(req.blink_id);
+    
+        //Disable effect (enabled = false)
+        memcpy(&blink_effect[task_id].blink_config , &blink_config, sizeof(blink_effect[task_id].blink_config));  
+        blink_effect[task_id].blink_mode(blink_effect[task_id].blink_config);
+    
+        //Free the task of the assigned id
+        blink_effect[task_id].assign_id("");
+    }
+  }
+  
   
 }
 
 
 void callback_shift(const LedsShift::Request & req, LedsShift::Response & res){
+
+  int task_id;
 
   shift_config.id = req.shift_id;
   shift_config.color_R = req.color_R;
@@ -206,13 +267,41 @@ void callback_shift(const LedsShift::Request & req, LedsShift::Response & res){
   shift_config.sleep = req.sleep;
   shift_config.enabled = req.enabled;
 
+
+  if(req.enabled){
+
+      //Create or edit a shift_mode
+      id_handler.save_id(req.shift_id); 
+      task_id = id_handler.get_serial_id(req.shift_id);
+      shift_effect[task_id].assign_id(req.shift_id);
+    
+  }
+  else {
+
+    //Check if id exists
+    if(id_handler.exist_id(req.shift_id)){
+
+        // If id exists, then delete it
+        
+        task_id = id_handler.get_serial_id(req.shift_id);
+        id_handler.delete_id(req.shift_id);
+    
+        //Disable effect (enabled = false)
+        memcpy(&shift_effect[task_id].shift_config , &shift_config, sizeof(shift_effect[task_id].shift_config));  
+        shift_effect[task_id].shift_mode(shift_effect[task_id].shift_config);
+    
+        //Free the task of the assigned id
+        shift_effect[task_id].assign_id("");
+    }
+  }
+
 }
 
 
 void callback_clear(const Trigger::Request & req, Trigger::Response & res){
 
-
-  
+   //Redefinir clear para que borre los id asignados en formato String ya que hay que tener en cuenta la nueva implementación 
+  /*
    for (int i= 0; i < NUM_EFFECTS; i++){
     
       paint_config.id = String(i);
@@ -232,8 +321,7 @@ void callback_clear(const Trigger::Request & req, Trigger::Response & res){
       shift_effect[i].shift_mode(shift_effect[i].shift_config);
 
    }
-
-
+  */
    
    //uint8_t test=3;
    // char cadena[16];
@@ -251,12 +339,12 @@ ros::ServiceServer<LedsBlink::Request, LedsBlink::Response> server_blink_mode("r
 ros::ServiceServer<LedsShift::Request, LedsShift::Response> server_shift_mode("robotnik_leds/set_leds/shift_mode",&callback_shift);
 
 ros::ServiceServer<Trigger::Request, Trigger::Response> server_clear_leds("robotnik_leds/clear_leds",&callback_clear);
-*/
+
 
 
 void setup()
 {
-/*
+
   #if defined(__AVR_ATmega32U4__) or defined(__MK20DX256__)  // Arduino Leonardo/Micro, Teensy 3.2
     nh.getHardware()->setBaud(2000000); 
  
@@ -270,29 +358,32 @@ void setup()
   nh.advertiseService(server_blink_mode);
   nh.advertiseService(server_shift_mode);
   nh.advertiseService(server_clear_leds);
- */
+ 
  
   pixels.begin();
   pixels.clear();
   pixels.show();
-
+  
   pinMode(13,OUTPUT);
   digitalWrite(13,LOW);
 
+
   Serial.begin(2000000);
 
+/*
   while(!Serial){;}
+*/
 
   for(int i = 0; i < NUM_EFFECTS; i++){
 
     
-      paint_effect[i].assign_id(String(i));
-      blink_effect[i].assign_id(String(i));
-      shift_effect[i].assign_id(String(i));
+      paint_effect[i].assign_id("");
+      blink_effect[i].assign_id("");
+      shift_effect[i].assign_id("");
       
   }
 
-
+/*
     id_handler.print_id_data_base();
     
     id_handler.save_id("led_front_left");
@@ -318,24 +409,20 @@ void setup()
     Serial.println(id_handler.number_of_ids());    
     Serial.println(id_handler.exist_id("patata"));
     Serial.println(id_handler.list_id());   
-
+*/
 
 }
 
 void loop()
 {
-/*
+
+
   if(timeout_system > 10){
       timeout_system = 0;
       nh.spinOnce();
   }
-*/
 
 
-  
-  
-  
-  /*
   for(int i=0; i < NUM_EFFECTS; i++){
 
     memcpy(&paint_effect[i].paint_config , &paint_config, sizeof(paint_effect[i].paint_config));  
@@ -348,6 +435,6 @@ void loop()
     shift_effect[i].shift_mode(shift_effect[i].shift_config);
   
   }
-  */
+  
   
 }
