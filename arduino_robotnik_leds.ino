@@ -52,6 +52,7 @@
 #include <Adafruit_NeoPixel.h>
 #include "ros.h"
 
+#include "IdHandler.h"
 #include "ShiftEffect.h"
 #include "BlinkEffect.h"
 #include "PaintEffect.h"
@@ -153,6 +154,8 @@ struct shift_leds{
 #define NUMPIXELS  130
 Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
+IdHandler id_handler;
+
 #define NUM_EFFECTS 5
 ShiftEffect shift_effect[NUM_EFFECTS](pixels);
 BlinkEffect blink_effect[NUM_EFFECTS](pixels);
@@ -161,7 +164,7 @@ PaintEffect paint_effect[NUM_EFFECTS](pixels);
 
 elapsedMillis timeout_system;
 
-
+/*
 void callback_paint(const LedsPaint::Request & req, LedsPaint::Response & res){
   
   paint_config.id = req.paint_id;
@@ -231,12 +234,12 @@ void callback_clear(const Trigger::Request & req, Trigger::Response & res){
    }
 
 
-   /*
-   uint8_t test=3;
-   char cadena[16];
-   sprintf(cadena, "%d", test);
-   res.message = cadena;
-   */
+   
+   //uint8_t test=3;
+   // char cadena[16];
+   //sprintf(cadena, "%d", test);
+   //res.message = cadena;
+   
    res.success = true;
    res.message = "All led effects have been disabled";
   
@@ -248,12 +251,12 @@ ros::ServiceServer<LedsBlink::Request, LedsBlink::Response> server_blink_mode("r
 ros::ServiceServer<LedsShift::Request, LedsShift::Response> server_shift_mode("robotnik_leds/set_leds/shift_mode",&callback_shift);
 
 ros::ServiceServer<Trigger::Request, Trigger::Response> server_clear_leds("robotnik_leds/clear_leds",&callback_clear);
-
+*/
 
 
 void setup()
 {
-
+/*
   #if defined(__AVR_ATmega32U4__) or defined(__MK20DX256__)  // Arduino Leonardo/Micro, Teensy 3.2
     nh.getHardware()->setBaud(2000000); 
  
@@ -261,12 +264,14 @@ void setup()
     nh.getHardware()->setBaud(57600);
   #endif   
 
+
   nh.initNode();
   nh.advertiseService(server_paint_mode);
   nh.advertiseService(server_blink_mode);
   nh.advertiseService(server_shift_mode);
   nh.advertiseService(server_clear_leds);
-  
+ */
+ 
   pixels.begin();
   pixels.clear();
   pixels.show();
@@ -276,6 +281,8 @@ void setup()
 
   Serial.begin(2000000);
 
+  while(!Serial){;}
+
   for(int i = 0; i < NUM_EFFECTS; i++){
 
     
@@ -284,18 +291,51 @@ void setup()
       shift_effect[i].assign_id(String(i));
       
   }
-  
+
+
+    id_handler.print_id_data_base();
+    
+    id_handler.save_id("led_front_left");
+    id_handler.save_id("led_front_right");
+    id_handler.save_id("led_rear_left");
+    id_handler.save_id("led_rear_right");
+    
+    id_handler.print_id_data_base();
+    
+    id_handler.delete_id ("led_rear_left");
+    id_handler.print_id_data_base();
+    
+    Serial.println(id_handler.number_of_ids());
+    
+    id_handler.save_id ("patata");
+    id_handler.print_id_data_base();
+    
+    id_handler.delete_id("patata");
+    id_handler.delete_id("led_front_right");
+
+    id_handler.print_id_data_base();
+    
+    Serial.println(id_handler.number_of_ids());    
+    Serial.println(id_handler.exist_id("patata"));
+    Serial.println(id_handler.list_id());   
+
+
 }
 
 void loop()
 {
-
+/*
   if(timeout_system > 10){
       timeout_system = 0;
       nh.spinOnce();
   }
+*/
+
 
   
+  
+  
+  /*
   for(int i=0; i < NUM_EFFECTS; i++){
 
     memcpy(&paint_effect[i].paint_config , &paint_config, sizeof(paint_effect[i].paint_config));  
@@ -308,6 +348,6 @@ void loop()
     shift_effect[i].shift_mode(shift_effect[i].shift_config);
   
   }
-
+  */
   
 }
