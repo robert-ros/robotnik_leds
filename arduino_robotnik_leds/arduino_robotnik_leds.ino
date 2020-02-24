@@ -57,15 +57,15 @@
 #include "BlinkEffect.h"
 #include "PaintEffect.h"
 
-#include <robotnik_leds/LedsPaint.h>
-#include <robotnik_leds/LedsBlink.h>
-#include <robotnik_leds/LedsShift.h>
+#include <robotnik_leds_sdk/LedsPaint.h>
+#include <robotnik_leds_sdk/LedsBlink.h>
+#include <robotnik_leds_sdk/LedsShift.h>
 #include <std_srvs/Trigger.h>
 
 ros::NodeHandle  nh;
-using robotnik_leds::LedsPaint;
-using robotnik_leds::LedsBlink;
-using robotnik_leds::LedsShift;
+using robotnik_leds_sdk::LedsPaint;
+using robotnik_leds_sdk::LedsBlink;
+using robotnik_leds_sdk::LedsShift;
 using std_srvs::Trigger;
 
 /* Variables globales para el modo paint */
