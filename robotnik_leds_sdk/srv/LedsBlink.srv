@@ -1,0 +1,12 @@
+string  blink_id
+uint8   color_R
+uint8   color_G
+uint8   color_B 
+uint16  start_led
+uint16  end_led
+uint16  ms_on
+uint16  ms_off
+bool    enabled
+---
+uint8  state
+
