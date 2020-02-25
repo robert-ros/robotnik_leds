@@ -42,9 +42,11 @@
  *       propuesta es que cuando se añada la nueva zona, el resto de zonas activas se reseteen. Esto provoca que los 
  *       leds que usen el mismo modo se apaguen para volver a su zona de inicio y esteticamente no puede quedar bien.
  *
- * id debe ser string en mensaje
- * Asignacion de id númerico a id string
- * Servicio para ver los efectos activados
+ * Tener funciones comunes para los tres tipos de efectos, estas se heradaran de LedEffect, actualizar, borrar, etc
+ * Mejorar el mecanismo de borrado de una zona, cuando se actualiza con una nueva zona de trabajo (sobretodo en paint)
+ * BUG/MEJORA: en blink, hasta que no cambie de estado no se actualiza la tira ya que no entra a la funcion para ahorrar recursos. Hay que entrar cada cierto tiempo
+ *             para poder actualizar la tira en vez de tener que esperar al encendido o apagado. En blinks muy grandes se nota que tarda en actualizar
+ * Implementar servicio para borrar efectos
  * Vector dinamico en función del id máximo asignado o en función del numero de IDs existentes
 
  */
@@ -179,10 +181,19 @@ void callback_paint(const LedsPaint::Request & req, LedsPaint::Response & res){
 
   if(req.enabled){
 
-      //Create or edit a paint_mode
-      id_handler.save_id(req.paint_id); 
-      task_id = id_handler.get_serial_id(req.paint_id);
-      paint_effect[task_id].assign_id(req.paint_id);
+      //Check if id exists
+      if(!id_handler.exist_id(req.paint_id)){
+
+          //If id not exists, then create it
+          id_handler.save_id(req.paint_id); 
+          task_id = id_handler.get_serial_id(req.paint_id);
+          paint_effect[task_id].assign_id(req.paint_id);
+     }
+     else{
+          //If id exists, edit it
+          task_id = id_handler.get_serial_id(req.paint_id);
+          paint_effect[task_id].assign_id(req.paint_id);
+     }
     
   }
   else {
@@ -223,10 +234,19 @@ void callback_blink(const LedsBlink::Request & req, LedsBlink::Response & res){
 
   if(req.enabled){
 
-      //Create or edit a blink_mode
-      id_handler.save_id(req.blink_id); 
-      task_id = id_handler.get_serial_id(req.blink_id);
-      blink_effect[task_id].assign_id(req.blink_id);
+      //Check if id exists
+      if(!id_handler.exist_id(req.blink_id)){
+
+          //If id not exists, then create it
+          id_handler.save_id(req.blink_id); 
+          task_id = id_handler.get_serial_id(req.blink_id);
+          blink_effect[task_id].assign_id(req.blink_id);
+     }
+     else{
+          //If id exists, edit it
+          task_id = id_handler.get_serial_id(req.blink_id);
+          blink_effect[task_id].assign_id(req.blink_id);
+     }
     
   }
   else {
@@ -270,10 +290,19 @@ void callback_shift(const LedsShift::Request & req, LedsShift::Response & res){
 
   if(req.enabled){
 
-      //Create or edit a shift_mode
-      id_handler.save_id(req.shift_id); 
-      task_id = id_handler.get_serial_id(req.shift_id);
-      shift_effect[task_id].assign_id(req.shift_id);
+      //Check if id exists
+      if(!id_handler.exist_id(req.shift_id)){
+
+          //If id not exists, then create it
+          id_handler.save_id(req.shift_id); 
+          task_id = id_handler.get_serial_id(req.shift_id);
+          shift_effect[task_id].assign_id(req.shift_id);
+     }
+     else{
+          //If id exists, edit it
+          task_id = id_handler.get_serial_id(req.shift_id);
+          shift_effect[task_id].assign_id(req.shift_id);
+     }
     
   }
   else {
@@ -333,12 +362,27 @@ void callback_clear(const Trigger::Request & req, Trigger::Response & res){
   
 }
 
+
+void callback_list_id(const Trigger::Request & req, Trigger::Response & res){
+
+
+  char list_id[300];
+  
+  id_handler.list_id().toCharArray(list_id, 300);
+
+  res.success = true;
+  res.message = list_id;
+  
+}
+
+
 // signaling_led_device/set_effect
 ros::ServiceServer<LedsPaint::Request, LedsPaint::Response> server_paint_mode("arduino_signaling_led/set_leds/paint_mode",&callback_paint);
 ros::ServiceServer<LedsBlink::Request, LedsBlink::Response> server_blink_mode("arduino_signaling_led/set_leds/blink_mode",&callback_blink);
 ros::ServiceServer<LedsShift::Request, LedsShift::Response> server_shift_mode("arduino_signaling_led/set_leds/shift_mode",&callback_shift);
 
 ros::ServiceServer<Trigger::Request, Trigger::Response> server_clear_leds("arduino_signaling_led/clear_effects",&callback_clear);
+ros::ServiceServer<Trigger::Request, Trigger::Response> server_list_id("arduino_signaling_led/list_id",&callback_list_id);
 
 
 
@@ -358,7 +402,8 @@ void setup()
   nh.advertiseService(server_blink_mode);
   nh.advertiseService(server_shift_mode);
   nh.advertiseService(server_clear_leds);
- 
+  nh.advertiseService(server_list_id);
+  
  
   pixels.begin();
   pixels.clear();

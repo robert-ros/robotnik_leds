@@ -35,9 +35,23 @@
           }
             
       }
-      
 
       blink_pixels = end_led - start_led + 1; // Por ejemplo start: 4, end: 2 Hay 4-2+1 = 3 pixeles involucrados
+
+      // Detecta si ha actualizado el led de inicio o el led de fin
+      
+      if(last_start_led != start_led || last_end_led != end_led){
+  
+          //Limpia la zona de trabajo antigua para poder funcionar con la nueva zona
+          pixels->fill(pixels->Color(0, 0, 0), last_start_led-1, last_blink_pixels);
+          pixels->show();
+  
+          last_start_led = start_led;
+          last_end_led = end_led;
+          last_blink_pixels = blink_pixels;
+          
+      }
+      
   
       //Nota: start_led cuenta los leds desde 1 mientras que fill() lo hace desde 0 
   

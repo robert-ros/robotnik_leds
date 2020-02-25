@@ -18,6 +18,7 @@
       uint8_t blink_state = 0;   //Estado del modo blink
       elapsedMillis blink_time;  //Tiempo transcurrido entre un intervalo
       bool isClear = true;       //Indica si hay que limpiar (apagar los leds) la zona donde ha trabajado el modo blink cuando ha terminado
+      uint16_t last_start_led = 0, last_end_led, last_blink_pixels = 0;
 
       String   id_assigned = 0;
       uint8_t  color_R = 0;

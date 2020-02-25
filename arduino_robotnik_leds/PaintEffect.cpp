@@ -35,14 +35,27 @@ uint8_t PaintEffect::paint_mode(struct leds_paint paint_config){
             
       }
 
+    
+    
+
 
     // Detecta si ha actualizado algun parámetro de la tira. Esto permite que el microcontrolador
     // no actualice constantemente la tira, ya que el valor es siempre el mismo sino han habido cambios
 
+    //Detecta si algun parametro se ha actualizado
     if(last_color_R != color_R || last_color_G != color_G || last_color_B != color_B ||
        last_start_led != start_led || last_end_led != end_led || last_enabled != enabled){
 
-        //Algun parametro se ha actualizado
+
+        //Si se detecta que la zona de trabajo ha cambiado, se borra la antigua zona
+        if(last_start_led != start_led || last_end_led != end_led){
+          
+          pixels->fill(pixels->Color(0, 0, 0), last_start_led-1, paint_pixels);
+          pixels->show();
+          
+        }
+
+        //Updated values
         isUpdated = true;
         last_color_R = color_R;
         last_color_G = color_G;
@@ -52,9 +65,8 @@ uint8_t PaintEffect::paint_mode(struct leds_paint paint_config){
         last_enabled = enabled;
     }
 
-    paint_pixels = end_led - start_led + 1; // Por ejemplo start: 4, end: 2 Hay 4-2+1 = 3 pixeles involucrados
 
- 
+    paint_pixels = end_led - start_led + 1; // Por ejemplo start: 4, end: 2 Hay 4-2+1 = 3 pixeles involucrados
     
     if(enabled){
 
