@@ -4,6 +4,27 @@
 import rospy
 from std_msgs.msg import String
 from robotnik_leds_sdk.srv import SetLeds, SetLedsResponse
+from robotnik_leds_sdk.srv import LedsPaint, LedsPaintRequest, LedsPaintResponse
+from robotnik_leds_sdk.srv import LedsBlink, LedsBlinkRequest, LedsBlinkResponse
+from robotnik_leds_sdk.srv import LedsShift, LedsShiftRequest, LedsShiftResponse
+
+
+# Init node
+rospy.init_node('leds_driver_server')
+
+
+# Wait for the service client 
+rospy.wait_for_service('/robotnik_leds/robotnik_leds/set_leds/paint_mode')
+rospy.wait_for_service('/robotnik_leds/robotnik_leds/set_leds/blink_mode')
+rospy.wait_for_service('/robotnik_leds/robotnik_leds/set_leds/shift_mode')
+
+
+# Connect to the service
+leds_driver_paint_service = rospy.ServiceProxy('/robotnik_leds/robotnik_leds/set_leds/paint_mode', LedsPaint)
+leds_driver_blink_service = rospy.ServiceProxy('/robotnik_leds/robotnik_leds/set_leds/blink_mode', LedsBlink)
+leds_driver_shift_service = rospy.ServiceProxy('/robotnik_leds/robotnik_leds/set_leds/shift_mode', LedsShift)
+
+
 
 def set_mode_led_driver(led_config, state_config, enable):
 
@@ -64,6 +85,25 @@ def shift_mode_led_driver(name, leds_zone, channel, type, color, direction, spee
     print(enable)
     print("==============")
 
+    leds_shift_config = LedsShiftRequest()
+    response = LedsShiftResponse()
+
+    leds_shift_config.shift_id = name
+    leds_shift_config.color_R = color[0]
+    leds_shift_config.color_G = color[1]
+    leds_shift_config.color_B = color[2]
+    leds_shift_config.start_led = leds_zone[0]
+    leds_shift_config.end_led = leds_zone[1]
+    leds_shift_config.direction = direction
+    leds_shift_config.speed = speed
+    leds_shift_config.sleep = sleep
+    leds_shift_config.enabled = enable
+
+    response = leds_driver_shift_service (leds_shift_config)
+
+    return response
+
+
 
 def blink_mode_led_driver(name, leds_zone, channel, type, color, ms_on, ms_off, enable):
 
@@ -80,6 +120,23 @@ def blink_mode_led_driver(name, leds_zone, channel, type, color, ms_on, ms_off, 
     print(enable)
     print("==============")
 
+    leds_blink_config = LedsBlinkRequest()
+    response = LedsBlinkResponse()
+
+    leds_blink_config.blink_id = name
+    leds_blink_config.color_R = color[0]
+    leds_blink_config.color_G = color[1]
+    leds_blink_config.color_B = color[2]
+    leds_blink_config.start_led = leds_zone[0]
+    leds_blink_config.end_led = leds_zone[1]
+    leds_blink_config.ms_on = ms_on
+    leds_blink_config.ms_off = ms_off
+    leds_blink_config.enabled = enable
+
+    response = leds_driver_blink_service (leds_blink_config)
+
+    return response
+
 
 def paint_mode_led_driver(name, leds_zone, channel, type, color, enable):
 
@@ -93,6 +150,22 @@ def paint_mode_led_driver(name, leds_zone, channel, type, color, enable):
     print(color)
     print(enable)
     print("==============")
+
+    leds_paint_config = LedsPaintRequest()
+    response = LedsPaintResponse()
+
+    leds_paint_config.paint_id = name
+    leds_paint_config.color_R = color[0]
+    leds_paint_config.color_G = color[1]
+    leds_paint_config.color_B = color[2]
+    leds_paint_config.start_led = leds_zone[0]
+    leds_paint_config.end_led = leds_zone[1]
+    leds_paint_config.enabled = enable
+
+    response = leds_driver_paint_service (leds_paint_config)
+
+    return response
+
 
 
 def get_config_params(led_name_req):
@@ -199,13 +272,31 @@ def leds_service_callback(req):
 def main():
 
     # Init node
-    rospy.init_node('leds_driver_server')
+    #rospy.init_node('leds_driver_server')
+
+    # Wait for the service client 
+    #rospy.wait_for_service('/robotnik_leds/robotnik_leds/set_leds/blink_mode')
+
+    # Connect to the service
+    #leds_driver_blink_service = rospy.ServiceProxy('/robotnik_leds/robotnik_leds/set_leds/blink_mode', LedsBlink)
+
+
+    # Init service
+    #leds_service = rospy.Service('/leds_service', SetLeds, leds_service_callback)
+
+
 
     # Init service
     leds_service = rospy.Service('/leds_service', SetLeds, leds_service_callback)
+    
+    dummy = 1
+
 
 
     while not rospy.is_shutdown():
+
+
+
         
         dummy = 1
 
