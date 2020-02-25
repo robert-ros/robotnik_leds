@@ -333,12 +333,12 @@ void callback_clear(const Trigger::Request & req, Trigger::Response & res){
   
 }
 
+// signaling_led_device/set_effect
+ros::ServiceServer<LedsPaint::Request, LedsPaint::Response> server_paint_mode("arduino_signaling_led/set_leds/paint_mode",&callback_paint);
+ros::ServiceServer<LedsBlink::Request, LedsBlink::Response> server_blink_mode("arduino_signaling_led/set_leds/blink_mode",&callback_blink);
+ros::ServiceServer<LedsShift::Request, LedsShift::Response> server_shift_mode("arduino_signaling_led/set_leds/shift_mode",&callback_shift);
 
-ros::ServiceServer<LedsPaint::Request, LedsPaint::Response> server_paint_mode("robotnik_leds/set_leds/paint_mode",&callback_paint);
-ros::ServiceServer<LedsBlink::Request, LedsBlink::Response> server_blink_mode("robotnik_leds/set_leds/blink_mode",&callback_blink);
-ros::ServiceServer<LedsShift::Request, LedsShift::Response> server_shift_mode("robotnik_leds/set_leds/shift_mode",&callback_shift);
-
-ros::ServiceServer<Trigger::Request, Trigger::Response> server_clear_leds("robotnik_leds/clear_leds",&callback_clear);
+ros::ServiceServer<Trigger::Request, Trigger::Response> server_clear_leds("arduino_signaling_led/clear_effects",&callback_clear);
 
 
 
