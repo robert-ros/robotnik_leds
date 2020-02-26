@@ -103,6 +103,24 @@
     return list_id;
   }
 
+  //Return the first available id stored in the data base
+  String IdHandler::get_first_id(){
+
+      String id = "";
+
+      for(int i=0; i < M_DB; i++){
+
+        if(id_data_base[i] != ""){
+
+           id = id_data_base[i];
+           break;
+          
+        }
+      }
+
+      return id;
+  }
+  
 
   void IdHandler::print_id_data_base(){
 

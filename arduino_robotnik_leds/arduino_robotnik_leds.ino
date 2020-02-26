@@ -330,32 +330,38 @@ void callback_shift(const LedsShift::Request & req, LedsShift::Response & res){
 void callback_clear(const Trigger::Request & req, Trigger::Response & res){
 
    //Redefinir clear para que borre los id asignados en formato String ya que hay que tener en cuenta la nueva implementación 
-  /*
-   for (int i= 0; i < NUM_EFFECTS; i++){
+
+  String id;
+  int task_id;
+  
+
+  while(id_handler.number_of_ids() > 0){
     
-      paint_config.id = String(i);
-      paint_config.enabled = false;
-      memcpy(&paint_effect[i].paint_config , &paint_config, sizeof(paint_effect[i].paint_config));  
-      paint_effect[i].paint_mode(paint_effect[i].paint_config);
+        id = id_handler.get_first_id();
+        task_id = id_handler.get_serial_id(id);
+        id_handler.delete_id(id);
+    
+        //Disable effect (enabled = false)
+        paint_config.enabled = false;
+        blink_config.enabled = false;
+        shift_config.enabled = false;
+        
+        memcpy(&paint_effect[task_id].paint_config , &paint_config, sizeof(paint_effect[task_id].paint_config));  
+        paint_effect[task_id].paint_mode(paint_effect[task_id].paint_config);
+      
+        memcpy(&blink_effect[task_id].blink_config , &blink_config, sizeof(blink_effect[task_id].blink_config));  
+        blink_effect[task_id].blink_mode(blink_effect[task_id].blink_config);
+    
+        memcpy(&shift_effect[task_id].shift_config , &shift_config, sizeof(shift_effect[task_id].shift_config));  
+        shift_effect[task_id].shift_mode(shift_effect[task_id].shift_config);
 
-      blink_config.id = String(i);
-      blink_config.enabled = false;
-      memcpy(&blink_effect[i].blink_config , &blink_config, sizeof(blink_effect[i].blink_config));  
-      blink_effect[i].blink_mode(blink_effect[i].blink_config);
-
-
-      shift_config.id = String(i);
-      shift_config.enabled = false;
-      memcpy(&shift_effect[i].shift_config , &shift_config, sizeof(shift_effect[i].shift_config));  
-      shift_effect[i].shift_mode(shift_effect[i].shift_config);
-
-   }
-  */
-   
-   //uint8_t test=3;
-   // char cadena[16];
-   //sprintf(cadena, "%d", test);
-   //res.message = cadena;
+        
+        //Free the task of the assigned id
+        paint_effect[task_id].assign_id("");
+        blink_effect[task_id].assign_id("");
+        shift_effect[task_id].assign_id("");
+           
+  }
    
    res.success = true;
    res.message = "All led effects have been disabled";

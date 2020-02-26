@@ -57,6 +57,7 @@
       int  number_of_ids(void);
       String list_id(void);
       
+      String get_first_id(void);
       
 
       
