@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+		
+<launch>
+
+
+		<node pkg="robotnik_leds_control" type="leds_control.py" name="leds_control_node" output="screen"/>
+
+
+		<!-- Launch led driver API and Hardware -->
+		<include file="$(find robotnik_leds_sdk)/launch/leds_driver.launch" />
+
+		
+</launch>

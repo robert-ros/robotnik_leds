@@ -284,7 +284,7 @@ class LedsDriver:
 
 def main():
 
-    leds_driver = LedsDriver();
+    leds_driver = LedsDriver()
 
     # Init node
     #rospy.init_node('leds_driver_server')

@@ -33,4 +33,11 @@ led_state_list:
 
   - name: "STOP"
     mode: "paint"
-    color: [20 , 20, 20]
+    color: [0 , 0, 20]
+
+
+  - name: "MOVING"
+    mode: "blink"
+    color: [0,20,0]
+    ms_on: 900
+    ms_off: 900
