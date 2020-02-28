@@ -158,6 +158,8 @@ Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
 IdHandler id_handler;
 
+elapsedMillis timeout_ack;
+
 #define NUM_EFFECTS 5
 ShiftEffect shift_effect[NUM_EFFECTS](pixels);
 BlinkEffect blink_effect[NUM_EFFECTS](pixels);
@@ -167,9 +169,49 @@ PaintEffect paint_effect[NUM_EFFECTS](pixels);
 elapsedMillis timeout_system;
 
 
+
+void clear_led_effects(){
+
+  timeout_ack = 0;
+  
+  String id;
+  int task_id;
+
+  while(id_handler.number_of_ids() > 0){
+    
+        id = id_handler.get_first_id();
+        task_id = id_handler.get_serial_id(id);
+        id_handler.delete_id(id);
+    
+        //Disable effect (enabled = false)
+        paint_config.enabled = false;
+        blink_config.enabled = false;
+        shift_config.enabled = false;
+        
+        memcpy(&paint_effect[task_id].paint_config , &paint_config, sizeof(paint_effect[task_id].paint_config));  
+        paint_effect[task_id].paint_mode(paint_effect[task_id].paint_config);
+      
+        memcpy(&blink_effect[task_id].blink_config , &blink_config, sizeof(blink_effect[task_id].blink_config));  
+        blink_effect[task_id].blink_mode(blink_effect[task_id].blink_config);
+    
+        memcpy(&shift_effect[task_id].shift_config , &shift_config, sizeof(shift_effect[task_id].shift_config));  
+        shift_effect[task_id].shift_mode(shift_effect[task_id].shift_config);
+
+        
+        //Free the task of the assigned id
+        paint_effect[task_id].assign_id("");
+        blink_effect[task_id].assign_id("");
+        shift_effect[task_id].assign_id("");
+           
+  }
+}
+
+
 void callback_paint(const LedsPaint::Request & req, LedsPaint::Response & res){
 
   int task_id;
+
+  timeout_ack = 0;
   
   paint_config.id = req.paint_id;
   paint_config.color_R = req.color_R;
@@ -219,6 +261,8 @@ void callback_paint(const LedsPaint::Request & req, LedsPaint::Response & res){
 
 
 void callback_blink(const LedsBlink::Request & req, LedsBlink::Response & res){
+
+  timeout_ack = 0;
 
   blink_config.id = req.blink_id;
   blink_config.color_R = req.color_R;
@@ -273,6 +317,8 @@ void callback_blink(const LedsBlink::Request & req, LedsBlink::Response & res){
 
 
 void callback_shift(const LedsShift::Request & req, LedsShift::Response & res){
+
+  timeout_ack = 0;
 
   int task_id;
 
@@ -329,40 +375,9 @@ void callback_shift(const LedsShift::Request & req, LedsShift::Response & res){
 
 void callback_clear(const Trigger::Request & req, Trigger::Response & res){
 
-   //Redefinir clear para que borre los id asignados en formato String ya que hay que tener en cuenta la nueva implementación 
+   timeout_ack = 0;
 
-  String id;
-  int task_id;
-  
-
-  while(id_handler.number_of_ids() > 0){
-    
-        id = id_handler.get_first_id();
-        task_id = id_handler.get_serial_id(id);
-        id_handler.delete_id(id);
-    
-        //Disable effect (enabled = false)
-        paint_config.enabled = false;
-        blink_config.enabled = false;
-        shift_config.enabled = false;
-        
-        memcpy(&paint_effect[task_id].paint_config , &paint_config, sizeof(paint_effect[task_id].paint_config));  
-        paint_effect[task_id].paint_mode(paint_effect[task_id].paint_config);
-      
-        memcpy(&blink_effect[task_id].blink_config , &blink_config, sizeof(blink_effect[task_id].blink_config));  
-        blink_effect[task_id].blink_mode(blink_effect[task_id].blink_config);
-    
-        memcpy(&shift_effect[task_id].shift_config , &shift_config, sizeof(shift_effect[task_id].shift_config));  
-        shift_effect[task_id].shift_mode(shift_effect[task_id].shift_config);
-
-        
-        //Free the task of the assigned id
-        paint_effect[task_id].assign_id("");
-        blink_effect[task_id].assign_id("");
-        shift_effect[task_id].assign_id("");
-           
-  }
-   
+   clear_led_effects();
    res.success = true;
    res.message = "All led effects have been disabled";
   
@@ -371,7 +386,8 @@ void callback_clear(const Trigger::Request & req, Trigger::Response & res){
 
 void callback_list_id(const Trigger::Request & req, Trigger::Response & res){
 
-
+  timeout_ack = 0;
+  
   char list_id[300];
   
   id_handler.list_id().toCharArray(list_id, 300);
@@ -382,6 +398,18 @@ void callback_list_id(const Trigger::Request & req, Trigger::Response & res){
 }
 
 
+void callback_ack(const Trigger::Request & req, Trigger::Response & res){
+  
+  timeout_ack = 0;
+  digitalWrite(13,LOW);
+  res.success = true;
+  res.message = "OK";
+  
+}
+
+
+
+
 // signaling_led_device/set_effect
 ros::ServiceServer<LedsPaint::Request, LedsPaint::Response> server_paint_mode("arduino_signaling_led/set_leds/paint_mode",&callback_paint);
 ros::ServiceServer<LedsBlink::Request, LedsBlink::Response> server_blink_mode("arduino_signaling_led/set_leds/blink_mode",&callback_blink);
@@ -389,6 +417,7 @@ ros::ServiceServer<LedsShift::Request, LedsShift::Response> server_shift_mode("a
 
 ros::ServiceServer<Trigger::Request, Trigger::Response> server_clear_leds("arduino_signaling_led/clear_effects",&callback_clear);
 ros::ServiceServer<Trigger::Request, Trigger::Response> server_list_id("arduino_signaling_led/list_id",&callback_list_id);
+ros::ServiceServer<Trigger::Request, Trigger::Response> server_ack("arduino_signaling_led/ack",&callback_ack);
 
 
 
@@ -409,6 +438,7 @@ void setup()
   nh.advertiseService(server_shift_mode);
   nh.advertiseService(server_clear_leds);
   nh.advertiseService(server_list_id);
+  nh.advertiseService(server_ack);
   
  
   pixels.begin();
@@ -486,6 +516,16 @@ void loop()
     shift_effect[i].shift_mode(shift_effect[i].shift_config);
   
   }
+
+
+  // En modo depuracion, comentar este bloque para que la tira no se apague cada rato
+  if(timeout_ack > 6000){
+  
+      clear_led_effects();
+      timeout_ack = 0;
+      digitalWrite(13,HIGH);
+  
+  } 
   
   
 }
