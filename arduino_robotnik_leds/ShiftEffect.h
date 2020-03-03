@@ -4,13 +4,14 @@
   #define _SHIFT_EFFECT_H_
   #include <Arduino.h>
   #include <Adafruit_NeoPixel.h>
+  #include "CommonEffect.h"
   
   
-  class ShiftEffect{
+  class ShiftEffect: public CommonEffect{
     
     private:
     
-      Adafruit_NeoPixel *pixels;
+      //Adafruit_NeoPixel *pixels;
       
       elapsedMicros shift_time;
       double shift_tic = 0, shift_toc = 0;
@@ -39,8 +40,11 @@
       
     public:
     
+      //ShiftEffect(Adafruit_NeoPixel &pixels);
+      //ShiftEffect(int num_pixels, byte pin, byte model);
       ShiftEffect(Adafruit_NeoPixel &pixels);
 
+  
       struct leds_shift{
   
           leds_shift(): 

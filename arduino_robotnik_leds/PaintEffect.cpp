@@ -4,16 +4,8 @@
   #include "PaintEffect.h"
 
 
-/*
-  PaintEffect::PaintEffect(Adafruit_NeoPixel &pixels):CommonEffect(){
-
-        this->setLedStrip(pixels);
-      
-  }
-*/
-
-  PaintEffect::PaintEffect(int num_pixels, byte pin, byte model):
-        CommonEffect(num_pixels, pin, model){}
+  PaintEffect::PaintEffect(Adafruit_NeoPixel &pixels):
+        CommonEffect(pixels){}
 
 
 

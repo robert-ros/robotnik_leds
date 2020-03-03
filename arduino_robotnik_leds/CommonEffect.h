@@ -10,13 +10,13 @@
     
     private:
 
-        Adafruit_NeoPixel *pixels;
         
     public:
 
-        CommonEffect(int num_pixels, byte pin, byte mode);
+        Adafruit_NeoPixel *pixels;
 
-        void setLedStrip(Adafruit_NeoPixel &pixels);
+
+        CommonEffect(Adafruit_NeoPixel &pixels);
 
 
         // General properties used by all led effects
@@ -51,9 +51,10 @@
         bool     enabled;
         
         } effect_config;
-
+        
         void beginPixels(void);
         void fillPixels(int color_R, int color_G, int color_B, int start_led, int count_led );
+        void setPixelsColor(int led, int color_R, int color_G, int color_B);
         void showPixels(void);
         
      

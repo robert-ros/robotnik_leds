@@ -3,17 +3,12 @@
   #include "CommonEffect.h"
 
   
-  CommonEffect::CommonEffect(int num_pixels, byte pin, byte mode) {
+  CommonEffect::CommonEffect(Adafruit_NeoPixel &pixels) {
 
-      pixels = new Adafruit_NeoPixel(num_pixels, pin, mode);
+     this->pixels = &pixels;
       
   }
 
-  void CommonEffect::setLedStrip(Adafruit_NeoPixel &pixels){
-
-    this->pixels = &pixels;
-    
- }
 
 
   void CommonEffect::fillPixels(int color_R, int color_G, int color_B, int start_led, int count_led ) {
@@ -35,6 +30,12 @@
         pixels->begin();
         pixels->clear();
         pixels->show();
+  
+  }
+
+  void CommonEffect::setPixelsColor(int led, int color_R, int color_G, int color_B){
+    
+      pixels->setPixelColor(led, pixels->Color(color_R, color_G, color_B));  
   
   }
   

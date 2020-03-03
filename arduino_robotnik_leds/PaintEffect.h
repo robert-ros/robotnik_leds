@@ -4,9 +4,8 @@
   #define _PAINT_EFFECT_H_
   
   #include <Arduino.h>
-  #include <Adafruit_NeoPixel.h>
   #include "CommonEffect.h"
-
+  #include <Adafruit_NeoPixel.h>
   
   class PaintEffect: public CommonEffect{
     
@@ -30,11 +29,7 @@
 
     public:
 
-      
-/*    
       PaintEffect(Adafruit_NeoPixel &pixels);
-*/
-      PaintEffect(int num_pixels, byte pin, byte model);
 
       struct leds_paint{
   

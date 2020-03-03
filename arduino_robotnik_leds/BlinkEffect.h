@@ -5,13 +5,14 @@
   
   #include <Arduino.h>
   #include <Adafruit_NeoPixel.h>
+  #include "CommonEffect.h"
   
   
-  class BlinkEffect{
+  class BlinkEffect: public CommonEffect{
     
     private:
     
-      Adafruit_NeoPixel *pixels;
+      //Adafruit_NeoPixel *pixels;
 
       bool isOn = false;         //Indica si el el led debe estar encendido o apagado
       uint16_t blink_pixels; // Numero de pixeles involucrados en realizar el efecto blink
@@ -32,6 +33,9 @@
 
     public:
     
+      //BlinkEffect(Adafruit_NeoPixel &pixels);
+       //BlinkEffect(int num_pixels, byte pin, byte model);
+       
       BlinkEffect(Adafruit_NeoPixel &pixels);
 
       struct leds_blink{

@@ -161,10 +161,13 @@ elapsedMillis timeout_ack;
 
 #define NUM_EFFECTS 5
 
-ShiftEffect shift_effect[NUM_EFFECTS](pixels);
-BlinkEffect blink_effect[NUM_EFFECTS](pixels);
+//ShiftEffect shift_effect[NUM_EFFECTS](pixels);
+//BlinkEffect blink_effect[NUM_EFFECTS](pixels);
 
-PaintEffect paint_effect[NUM_EFFECTS] = PaintEffect(NUMPIXELS, PIN, NEO_GRBW + NEO_KHZ800);
+
+PaintEffect paint_effect[NUM_EFFECTS] = PaintEffect(pixels);
+ShiftEffect shift_effect[NUM_EFFECTS] = ShiftEffect(pixels);
+BlinkEffect blink_effect[NUM_EFFECTS] = BlinkEffect(pixels); 
 
 elapsedMillis timeout_system;
 
@@ -460,7 +463,8 @@ void setup()
       paint_effect[i].assign_id("");
       blink_effect[i].assign_id("");
       shift_effect[i].assign_id("");
-      
+
+
   }
 
 

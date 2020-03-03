@@ -2,12 +2,21 @@
   #include "BlinkEffect.h"
 
 
-
+/*
   BlinkEffect::BlinkEffect(Adafruit_NeoPixel &pixels) {
 
         this->pixels = &pixels;
       
   }
+*/
+/*
+  BlinkEffect::BlinkEffect(int num_pixels, byte pin, byte model):
+        CommonEffect(num_pixels, pin, model){}
+
+*/
+  BlinkEffect::BlinkEffect(Adafruit_NeoPixel &pixels):
+        CommonEffect(pixels){}
+        
 
   void BlinkEffect::assign_id(String id_assigned){
     
@@ -43,8 +52,10 @@
       if(last_start_led != start_led || last_end_led != end_led){
   
           //Limpia la zona de trabajo antigua para poder funcionar con la nueva zona
-          pixels->fill(pixels->Color(0, 0, 0), last_start_led-1, last_blink_pixels);
-          pixels->show();
+          //pixels->fill(pixels->Color(0, 0, 0), last_start_led-1, last_blink_pixels);
+          //pixels->show();
+          fillPixels(0,0,0, last_start_led-1, last_blink_pixels);
+          showPixels();
   
           last_start_led = start_led;
           last_end_led = end_led;
@@ -60,15 +71,19 @@
           isClear = false;
   
           if(blink_time > ms_off && !isOn){
-              pixels->fill(pixels->Color(color_R, color_G, color_B), start_led-1, blink_pixels);
-            pixels->show();
+            //pixels->fill(pixels->Color(color_R, color_G, color_B), start_led-1, blink_pixels);
+            //pixels->show();
+            fillPixels(color_R,color_G,color_B, start_led-1, blink_pixels);
+            showPixels();
             blink_time = 0;
             isOn = true;          
         }
 
         if(blink_time > ms_on && isOn){
-            pixels->fill(pixels->Color(0, 0, 0), start_led-1, blink_pixels);
-            pixels->show();
+            //pixels->fill(pixels->Color(0, 0, 0), start_led-1, blink_pixels);
+            //pixels->show();                            
+            fillPixels(0,0,0, start_led-1, blink_pixels);
+            showPixels();
             blink_time = 0;
             isOn = false;
         }
@@ -76,8 +91,10 @@
     }
 
     else if (!isClear){
-        pixels->fill(pixels->Color(0, 0, 0), start_led-1, blink_pixels);
-        pixels->show();
+        //pixels->fill(pixels->Color(0, 0, 0), start_led-1, blink_pixels);
+        //pixels->show();
+        fillPixels(0,0,0, start_led-1, blink_pixels);
+        showPixels();
         isClear = true;
     }
     

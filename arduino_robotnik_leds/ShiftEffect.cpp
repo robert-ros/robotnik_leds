@@ -2,13 +2,23 @@
   #include "ShiftEffect.h"
 
 
-
+/*
   ShiftEffect::ShiftEffect(Adafruit_NeoPixel &pixels) {
 
         this->pixels = &pixels;
       
   }
+*/
 
+  /*
+  ShiftEffect::ShiftEffect(int num_pixels, byte pin, byte model):
+        CommonEffect(num_pixels, pin, model){}
+*/
+
+  ShiftEffect::ShiftEffect(Adafruit_NeoPixel &pixels):
+        CommonEffect(pixels){}
+
+        
   void ShiftEffect::assign_id(String id_assigned){
     
       this->id_assigned = id_assigned; 
@@ -49,8 +59,10 @@
           count_pixel = start_led;
   
           //Limpia la zona de trabajo antigua para poder funcionar con la nueva zona
-          pixels->fill(pixels->Color(0, 0, 0), last_start_led-1, last_shift_pixels);
-          pixels->show();
+          //pixels->fill(pixels->Color(0, 0, 0), last_start_led-1, last_shift_pixels);
+          //pixels->show();
+          fillPixels(0,0,0, last_start_led-1, last_shift_pixels);
+          showPixels();
   
           last_start_led = start_led;
           last_end_led = end_led;
@@ -86,8 +98,10 @@
               if(count_pixel > end_led){
                   
                   //Nota: start_led cuenta los leds desde 1 mientras que setPixelColor lo hace desde 0 
-                  pixels->fill(pixels->Color(0, 0, 0), start_led-1, shift_pixels);  
-                  pixels->show();
+                  //pixels->fill(pixels->Color(0, 0, 0), start_led-1, shift_pixels);  
+                  //pixels->show();
+                  fillPixels(0,0,0, start_led-1, shift_pixels);
+                  showPixels();
                   count_pixel = start_led; 
   
                   //shift_toc = micros()/1000.0;
@@ -102,22 +116,26 @@
                   
                   if(direction.equals("right"))
                       
-                      pixels->setPixelColor(count_pixel-1, pixels->Color(color_R, color_G, color_B));
+                      //pixels->setPixelColor(count_pixel-1, pixels->Color(color_R, color_G, color_B));
+                      setPixelsColor(count_pixel-1, color_R, color_G, color_B);
                   
                   else if (direction.equals("left"))
                       
-                      pixels->setPixelColor( (shift_pixels+start_led) - 1 - (count_pixel-start_led) - 1 , pixels->Color(color_R, color_G, color_B));
-  
+                      //pixels->setPixelColor( (shift_pixels+start_led) - 1 - (count_pixel-start_led) - 1 , pixels->Color(color_R, color_G, color_B));
+                      setPixelsColor( (shift_pixels+start_led) - 1 - (count_pixel-start_led) - 1 , color_R, color_G, color_B);
                   
-                  pixels->show();
+                  //pixels->show();
+                  showPixels();
                   count_pixel++;         
               }
           }
       }
   
       else if (!isClear){
-          pixels->fill(pixels->Color(0, 0, 0), start_led-1, shift_pixels);
-          pixels->show();
+          //pixels->fill(pixels->Color(0, 0, 0), start_led-1, shift_pixels);
+          //pixels->show();
+          fillPixels(0,0,0, start_led-1, shift_pixels);
+          showPixels();
           isClear = true;
       }
   
