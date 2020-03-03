@@ -5,7 +5,7 @@
   
   CommonEffect::CommonEffect(int num_pixels, byte pin, byte mode) {
 
-      pixels = new Adafruit_NeoPixel(num_pixels, pin, NEO_GRB + NEO_KHZ800);
+      pixels = new Adafruit_NeoPixel(num_pixels, pin, mode);
       
   }
 

@@ -150,21 +150,21 @@ struct shift_leds{
 
 
 
-
 /* Tira led */
 #define PIN        6
 #define NUMPIXELS  130
-Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_RGB + NEO_KHZ800);
 
 IdHandler id_handler;
 
 elapsedMillis timeout_ack;
 
 #define NUM_EFFECTS 5
+
 ShiftEffect shift_effect[NUM_EFFECTS](pixels);
 BlinkEffect blink_effect[NUM_EFFECTS](pixels);
-PaintEffect paint_effect[NUM_EFFECTS](pixels);
 
+PaintEffect paint_effect[NUM_EFFECTS] = PaintEffect(NUMPIXELS, PIN, NEO_GRBW + NEO_KHZ800);
 
 elapsedMillis timeout_system;
 
@@ -205,6 +205,8 @@ void clear_led_effects(){
            
   }
 }
+
+
 
 
 void callback_paint(const LedsPaint::Request & req, LedsPaint::Response & res){
@@ -433,6 +435,7 @@ void setup()
 
 
   nh.initNode();
+  
   nh.advertiseService(server_paint_mode);
   nh.advertiseService(server_blink_mode);
   nh.advertiseService(server_shift_mode);
@@ -451,10 +454,6 @@ void setup()
 
   Serial.begin(2000000);
 
-/*
-  while(!Serial){;}
-*/
-
   for(int i = 0; i < NUM_EFFECTS; i++){
 
     
@@ -464,33 +463,6 @@ void setup()
       
   }
 
-/*
-    id_handler.print_id_data_base();
-    
-    id_handler.save_id("led_front_left");
-    id_handler.save_id("led_front_right");
-    id_handler.save_id("led_rear_left");
-    id_handler.save_id("led_rear_right");
-    
-    id_handler.print_id_data_base();
-    
-    id_handler.delete_id ("led_rear_left");
-    id_handler.print_id_data_base();
-    
-    Serial.println(id_handler.number_of_ids());
-    
-    id_handler.save_id ("patata");
-    id_handler.print_id_data_base();
-    
-    id_handler.delete_id("patata");
-    id_handler.delete_id("led_front_right");
-
-    id_handler.print_id_data_base();
-    
-    Serial.println(id_handler.number_of_ids());    
-    Serial.println(id_handler.exist_id("patata"));
-    Serial.println(id_handler.list_id());   
-*/
 
 }
 
@@ -503,6 +475,37 @@ void loop()
       nh.spinOnce();
   }
 
+
+
+
+/*
+  blink_config.id = "";
+  blink_config.color_R =  0;
+  blink_config.color_G = 20;
+  blink_config.color_B = 0;
+  blink_config.start_led = 1;
+  blink_config.end_led = 10;
+  blink_config.ms_on = 500;
+  blink_config.ms_off = 500; 
+  blink_config.enabled = true;
+
+  memcpy(&blink_effect[0].blink_config , &blink_config, sizeof(blink_effect[0].blink_config));  
+  blink_effect[0].blink_mode(blink_effect[0].blink_config);
+*/
+
+/*
+  paint_config.id = "";
+  paint_config.color_R =  0;
+  paint_config.color_G = 20;
+  paint_config.color_B = 0;
+  paint_config.start_led = 5;
+  paint_config.end_led = 10;
+  paint_config.enabled = true;
+
+  memcpy(&paint_effect[0].paint_config , &paint_config, sizeof(paint_effect[0].paint_config));  
+  paint_effect[0].paint_mode(paint_effect[0].paint_config);
+
+*/
 
   for(int i=0; i < NUM_EFFECTS; i++){
 
@@ -518,6 +521,7 @@ void loop()
   }
 
 
+/*
   // En modo depuracion, comentar este bloque para que la tira no se apague cada rato
   if(timeout_ack > 6000){
   
@@ -525,7 +529,10 @@ void loop()
       timeout_ack = 0;
       digitalWrite(13,HIGH);
   
-  } 
+  }
+
+*/
+   
   
   
 }

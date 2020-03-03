@@ -4,12 +4,18 @@
   #include "PaintEffect.h"
 
 
+/*
+  PaintEffect::PaintEffect(Adafruit_NeoPixel &pixels):CommonEffect(){
 
-  PaintEffect::PaintEffect(Adafruit_NeoPixel &pixels) {
-
-        this->pixels = &pixels;
+        this->setLedStrip(pixels);
       
   }
+*/
+
+  PaintEffect::PaintEffect(int num_pixels, byte pin, byte model):
+        CommonEffect(num_pixels, pin, model){}
+
+
 
   void PaintEffect::assign_id(String id_assigned){
     
@@ -17,9 +23,12 @@
   }
 
 
+
+
 uint8_t PaintEffect::paint_mode(struct leds_paint paint_config){
 
-     
+      
+
       // Updated internal values 
       if(id_assigned.equals(paint_config.id)){
 
@@ -38,7 +47,6 @@ uint8_t PaintEffect::paint_mode(struct leds_paint paint_config){
     
     
 
-
     // Detecta si ha actualizado algun parámetro de la tira. Esto permite que el microcontrolador
     // no actualice constantemente la tira, ya que el valor es siempre el mismo sino han habido cambios
 
@@ -50,8 +58,10 @@ uint8_t PaintEffect::paint_mode(struct leds_paint paint_config){
         //Si se detecta que la zona de trabajo ha cambiado, se borra la antigua zona
         if(last_start_led != start_led || last_end_led != end_led){
           
-          pixels->fill(pixels->Color(0, 0, 0), last_start_led-1, paint_pixels);
-          pixels->show();
+          //pixels->fill(pixels->Color(0, 0, 0), last_start_led-1, paint_pixels);
+          //pixels->show();
+          fillPixels(0,0,0, last_start_led-1, paint_pixels);
+          showPixels();
           
         }
 
@@ -73,17 +83,20 @@ uint8_t PaintEffect::paint_mode(struct leds_paint paint_config){
         if(isUpdated){
 
             isClear = false;
-          
             //Nota: start_led cuenta los leds desde 1 mientras que fill() lo hace desde 0   
-            pixels->fill(pixels->Color(color_R, color_G, color_B), start_led-1 , paint_pixels);
-            pixels->show();
+            //pixels->fill(pixels->Color(color_R, color_G, color_B), start_led-1 , paint_pixels);
+            //pixels->show();
+            fillPixels(color_R,color_G, color_B,  start_led-1, paint_pixels);
+            showPixels();
             isUpdated = false; // Se ha actualizado la tira led
         }
     }
     
     else if (!isClear){
-        pixels->fill(pixels->Color(0, 0, 0), start_led-1, paint_pixels);
-        pixels->show();
+        //pixels->fill(pixels->Color(0, 0, 0), start_led-1, paint_pixels);
+        //pixels->show();
+        fillPixels(0,0,0,   start_led-1, paint_pixels);
+        showPixels();
         isClear = true;
     }
 

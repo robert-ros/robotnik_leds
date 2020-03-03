@@ -5,14 +5,13 @@
   
   #include <Arduino.h>
   #include <Adafruit_NeoPixel.h>
+  #include "CommonEffect.h"
+
   
-  
-  class PaintEffect{
+  class PaintEffect: public CommonEffect{
     
     private:
     
-      Adafruit_NeoPixel *pixels;
-
       uint8_t paint_state = 0;
       bool isUpdated = false;  
       uint16_t paint_pixels = 0;  // Numero de pixeles involucrados en realizar el efecto blink
@@ -30,8 +29,12 @@
       bool     enabled = false;
 
     public:
-    
+
+      
+/*    
       PaintEffect(Adafruit_NeoPixel &pixels);
+*/
+      PaintEffect(int num_pixels, byte pin, byte model);
 
       struct leds_paint{
   
