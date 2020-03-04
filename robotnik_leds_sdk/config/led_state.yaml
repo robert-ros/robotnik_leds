@@ -24,7 +24,7 @@ led_state_list:
     sleep: 500
 
 
-  - name: "FOWARD"
+  - name: "FORWARD"
     mode: "blink"
     color: [0, 20, 20]
     ms_on: 100
