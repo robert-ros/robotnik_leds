@@ -8,10 +8,27 @@
         CommonEffect(pixels){}
 
 
-
-  void PaintEffect::assign_id(String id_assigned){
+  void PaintEffect::run(void){
     
-      this->id_assigned = id_assigned; 
+    if(checkUpdates()){
+      
+        /* Auxiliar local variables */
+        int color_R = this -> effect_config.color_R;    
+        int color_G = this -> effect_config.color_G;    
+        int color_B = this -> effect_config.color_B;
+        int start_led = this -> effect_config.start_led;
+        int end_led = this -> effect_config.end_led;
+        int enabled = this -> effect_config.enabled;
+    
+        
+        if(enabled)
+            showFillPixels(color_R, color_G, color_B,  start_led, end_led);  
+        
+        else
+            showFillPixels(0,0,0,  start_led, end_led);
+            
+    }
+    
   }
 
 
@@ -19,7 +36,8 @@
 
 uint8_t PaintEffect::paint_mode(struct leds_paint paint_config){
 
-      
+      int dummy = 0;
+    /*      
 
       // Updated internal values 
       if(id_assigned.equals(paint_config.id)){
@@ -67,6 +85,8 @@ uint8_t PaintEffect::paint_mode(struct leds_paint paint_config){
         last_enabled = enabled;
     }
 
+   
+
 
     paint_pixels = end_led - start_led + 1; // Por ejemplo start: 4, end: 2 Hay 4-2+1 = 3 pixeles involucrados
     
@@ -92,7 +112,7 @@ uint8_t PaintEffect::paint_mode(struct leds_paint paint_config){
         isClear = true;
     }
 
-
+    */
 
 
   return paint_state;
