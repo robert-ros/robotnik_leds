@@ -203,23 +203,18 @@ void clear_led_effects(){
 
         //Disable effect (enabled = false)
         struct LedProperties my_config;
-
         my_config.id = id;
         my_config.enabled = false;
+        
         paint_effect[task_id].update(my_config);
         paint_effect[task_id].run();
         
+        blink_effect[task_id].update(my_config);
+        blink_effect[task_id].run();
         
-        //memcpy(&paint_effect[task_id].paint_config , &paint_config, sizeof(paint_effect[task_id].paint_config));  
-        //paint_effect[task_id].paint_mode(paint_effect[task_id].paint_config);
-
-      
-        memcpy(&blink_effect[task_id].blink_config , &blink_config, sizeof(blink_effect[task_id].blink_config));  
-        blink_effect[task_id].blink_mode(blink_effect[task_id].blink_config);
+        shift_effect[task_id].update(my_config);
+        shift_effect[task_id].run();
     
-        memcpy(&shift_effect[task_id].shift_config , &shift_config, sizeof(shift_effect[task_id].shift_config));  
-        shift_effect[task_id].shift_mode(shift_effect[task_id].shift_config);
-
         
         //Free the task of the assigned id
         paint_effect[task_id].assign_id("");
@@ -283,8 +278,6 @@ void callback_paint(const LedsPaint::Request & req, LedsPaint::Response & res){
         my_config.enabled = false;
         paint_effect[task_id].update(my_config);
         
-        //memcpy(&paint_effect[task_id].paint_config , &paint_config, sizeof(paint_effect[task_id].paint_config));  
-        //paint_effect[task_id].paint_mode(paint_effect[task_id].paint_config);
     
         //Free the task of the assigned id
         paint_effect[task_id].assign_id("");
@@ -298,15 +291,18 @@ void callback_blink(const LedsBlink::Request & req, LedsBlink::Response & res){
 
   timeout_ack = 0;
 
-  blink_config.id = req.blink_id;
-  blink_config.color_R = req.color_R;
-  blink_config.color_G = req.color_G;
-  blink_config.color_B = req.color_B;
-  blink_config.start_led = req.start_led;
-  blink_config.end_led = req.end_led;
-  blink_config.ms_on = req.ms_on;
-  blink_config.ms_off = req.ms_off; 
-  blink_config.enabled = req.enabled;
+  struct LedProperties my_config;
+
+  my_config.id = req.blink_id;
+  my_config.color_R =  req.color_R;
+  my_config.color_G = req.color_G;
+  my_config.color_B = req.color_B;
+  my_config.start_led = req.start_led;
+  my_config.end_led = req.end_led;
+  my_config.ms_on = req.ms_on;
+  my_config.ms_off = req.ms_off; 
+  my_config.enabled = req.enabled;
+
 
   int task_id;
 
@@ -319,11 +315,13 @@ void callback_blink(const LedsBlink::Request & req, LedsBlink::Response & res){
           id_handler.save_id(req.blink_id); 
           task_id = id_handler.get_serial_id(req.blink_id);
           blink_effect[task_id].assign_id(req.blink_id);
+          blink_effect[task_id].update(my_config);
      }
      else{
           //If id exists, edit it
           task_id = id_handler.get_serial_id(req.blink_id);
           blink_effect[task_id].assign_id(req.blink_id);
+          blink_effect[task_id].update(my_config);
      }
     
   }
@@ -336,10 +334,11 @@ void callback_blink(const LedsBlink::Request & req, LedsBlink::Response & res){
         
         task_id = id_handler.get_serial_id(req.blink_id);
         id_handler.delete_id(req.blink_id);
-    
+
+
         //Disable effect (enabled = false)
-        memcpy(&blink_effect[task_id].blink_config , &blink_config, sizeof(blink_effect[task_id].blink_config));  
-        blink_effect[task_id].blink_mode(blink_effect[task_id].blink_config);
+        my_config.enabled = false;
+        blink_effect[task_id].update(my_config);
     
         //Free the task of the assigned id
         blink_effect[task_id].assign_id("");
@@ -354,18 +353,20 @@ void callback_shift(const LedsShift::Request & req, LedsShift::Response & res){
 
   timeout_ack = 0;
 
-  int task_id;
+  struct LedProperties my_config;
 
-  shift_config.id = req.shift_id;
-  shift_config.color_R = req.color_R;
-  shift_config.color_G = req.color_G;
-  shift_config.color_B = req.color_B;
-  shift_config.start_led = req.start_led;
-  shift_config.end_led = req.end_led;
-  shift_config.direction = req.direction;
-  shift_config.speed = req.speed;
-  shift_config.sleep = req.sleep;
-  shift_config.enabled = req.enabled;
+  my_config.id = req.shift_id;
+  my_config.color_R =  req.color_R;
+  my_config.color_G = req.color_G;
+  my_config.color_B = req.color_B;
+  my_config.start_led = req.start_led;
+  my_config.end_led = req.end_led;
+  my_config.direction = req.direction;
+  my_config.speed = req.speed;
+  my_config.sleep = req.sleep; //Not used
+  my_config.enabled = req.enabled;
+
+  int task_id;
 
 
   if(req.enabled){
@@ -377,11 +378,13 @@ void callback_shift(const LedsShift::Request & req, LedsShift::Response & res){
           id_handler.save_id(req.shift_id); 
           task_id = id_handler.get_serial_id(req.shift_id);
           shift_effect[task_id].assign_id(req.shift_id);
+          shift_effect[task_id].update(my_config);
      }
      else{
           //If id exists, edit it
           task_id = id_handler.get_serial_id(req.shift_id);
           shift_effect[task_id].assign_id(req.shift_id);
+          shift_effect[task_id].update(my_config);
      }
     
   }
@@ -394,11 +397,11 @@ void callback_shift(const LedsShift::Request & req, LedsShift::Response & res){
         
         task_id = id_handler.get_serial_id(req.shift_id);
         id_handler.delete_id(req.shift_id);
-    
-        //Disable effect (enabled = false)
-        memcpy(&shift_effect[task_id].shift_config , &shift_config, sizeof(shift_effect[task_id].shift_config));  
-        shift_effect[task_id].shift_mode(shift_effect[task_id].shift_config);
-    
+
+
+        my_config.enabled = false;
+        shift_effect[task_id].update(my_config);
+ 
         //Free the task of the assigned id
         shift_effect[task_id].assign_id("");
     }
@@ -509,22 +512,26 @@ void loop()
   }
 
 
-
-
 /*
-  blink_config.id = "";
-  blink_config.color_R =  0;
-  blink_config.color_G = 20;
-  blink_config.color_B = 0;
-  blink_config.start_led = 1;
-  blink_config.end_led = 10;
-  blink_config.ms_on = 500;
-  blink_config.ms_off = 500; 
-  blink_config.enabled = true;
+  struct LedProperties my_config;
 
-  memcpy(&blink_effect[0].blink_config , &blink_config, sizeof(blink_effect[0].blink_config));  
-  blink_effect[0].blink_mode(blink_effect[0].blink_config);
+  my_config.id = "";
+  my_config.color_R =  0;
+  my_config.color_G = 20;
+  my_config.color_B = 0;
+  my_config.start_led = 1;
+  my_config.end_led = 10;
+  my_config.speed = 1000;
+  my_config.direction = "right"; 
+  my_config.enabled = true;
+
+  shift_effect[0].update(my_config);
+  shift_effect[0].run();
 */
+
+  //memcpy(&blink_effect[0].blink_config , &blink_config, sizeof(blink_effect[0].blink_config));  
+  //blink_effect[0].blink_mode(blink_effect[0].blink_config);
+
 
 /*
   paint_config.id = "";
@@ -546,15 +553,14 @@ void loop()
   for(int i=0; i < NUM_EFFECTS; i++){
 
     paint_effect[i].run();
-    
-    //memcpy(&paint_effect[i].paint_config , &paint_config, sizeof(paint_effect[i].paint_config));  
-    //paint_effect[i].paint_mode(paint_effect[i].paint_config);
-    
-    memcpy(&blink_effect[i].blink_config , &blink_config, sizeof(blink_effect[i].blink_config));  
-    blink_effect[i].blink_mode(blink_effect[i].blink_config);
+    blink_effect[i].run();
+    shift_effect[i].run();
+        
+    //memcpy(&blink_effect[i].blink_config , &blink_config, sizeof(blink_effect[i].blink_config));  
+    //blink_effect[i].blink_mode(blink_effect[i].blink_config);
 
-    memcpy(&shift_effect[i].shift_config , &shift_config, sizeof(shift_effect[i].shift_config));  
-    shift_effect[i].shift_mode(shift_effect[i].shift_config);
+    //memcpy(&shift_effect[i].shift_config , &shift_config, sizeof(shift_effect[i].shift_config));  
+    //shift_effect[i].shift_mode(shift_effect[i].shift_config);
     
   }
   
@@ -592,6 +598,9 @@ void loop()
 
   delay(1000);
 */
+
+
+
 
 /*
   // En modo depuracion, comentar este bloque para que la tira no se apague cada rato

@@ -5,43 +5,14 @@
   
   #include <Arduino.h>
   #include "CommonEffect.h"
-  #include <Adafruit_NeoPixel.h>
+
   
   class PaintEffect: public CommonEffect{
-    
-    private:
-    
-      uint8_t paint_state = 0;
-
+   
     public:
 
       PaintEffect(Adafruit_NeoPixel &pixels);
-      
-      struct leds_paint{
-  
-          leds_paint(): 
-              id(""),
-              color_R(0),
-              color_G(0),
-              color_B(0),
-              start_led(0),
-              end_led(0),
-              enabled(false) {}
-          
-          String   id;
-          uint8_t  color_R;
-          uint8_t  color_G;
-          uint8_t  color_B;
-          uint16_t start_led;
-          uint16_t end_led;
-          bool     enabled;
-      
-      } paint_config;
-      
-
       void run(void);
-      uint8_t paint_mode( struct leds_paint paint_config);
-
  
   };
 
