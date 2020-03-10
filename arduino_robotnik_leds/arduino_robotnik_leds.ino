@@ -59,16 +59,19 @@
 #include "BlinkEffect.h"
 #include "PaintEffect.h"
 #include "CommonEffect.h"
+#include "LedEffects.h"
 
 #include <robotnik_leds_sdk/LedsPaint.h>
 #include <robotnik_leds_sdk/LedsBlink.h>
 #include <robotnik_leds_sdk/LedsShift.h>
+#include <robotnik_leds_sdk/LedEffects.h>
 #include <std_srvs/Trigger.h>
 
 ros::NodeHandle  nh;
 using robotnik_leds_sdk::LedsPaint;
 using robotnik_leds_sdk::LedsBlink;
 using robotnik_leds_sdk::LedsShift;
+//using robotnik_leds_sdk::LedEffects;
 using std_srvs::Trigger;
 
 /* Variables globales para el modo paint */
@@ -176,6 +179,8 @@ PaintEffect paint_effect[NUM_EFFECTS] = PaintEffect(pixels);
 ShiftEffect shift_effect[NUM_EFFECTS] = ShiftEffect(pixels);
 BlinkEffect blink_effect[NUM_EFFECTS] = BlinkEffect(pixels); 
 
+LedEffects  led_effects = LedEffects(pixels);
+
 elapsedMillis timeout_system;
 
 
@@ -186,6 +191,9 @@ void clear_led_effects(){
   
   String id;
   int task_id;
+
+  led_effects.clearEffects();
+
 
   while(id_handler.number_of_ids() > 0){
     
@@ -205,6 +213,8 @@ void clear_led_effects(){
         struct LedProperties my_config;
         my_config.id = id;
         my_config.enabled = false;
+
+        
         
         paint_effect[task_id].update(my_config);
         paint_effect[task_id].run();
@@ -214,7 +224,11 @@ void clear_led_effects(){
         
         shift_effect[task_id].update(my_config);
         shift_effect[task_id].run();
-    
+
+        //led_effects.updateEffects(my_config); //This only remove one effect, check to remove all
+        //led_effects.runEffects();
+
+       
         
         //Free the task of the assigned id
         paint_effect[task_id].assign_id("");
@@ -406,8 +420,36 @@ void callback_shift(const LedsShift::Request & req, LedsShift::Response & res){
         shift_effect[task_id].assign_id("");
     }
   }
-
+  res.state = 3;
 }
+
+
+void callback_led_effects(const robotnik_leds_sdk::LedEffects::Request & req, robotnik_leds_sdk::LedEffects::Response & res){
+  
+  struct LedProperties effect_config;
+
+
+  effect_config.id = req.id;
+  effect_config.mode = req.mode;
+  effect_config.channel = req.channel;
+  effect_config.type = req.type;
+  effect_config.color_R = req.color_R;
+  effect_config.color_G = req.color_G;
+  effect_config.color_B = req.color_B;
+  effect_config.start_led = req.start_led;
+  effect_config.end_led = req.end_led;
+  effect_config.ms_on = req.ms_on;
+  effect_config.ms_off = req.ms_off;
+  effect_config.direction = req.direction;
+  effect_config.speed = req.speed;
+  effect_config.sleep = req.sleep;
+  effect_config.enabled = req.enabled;
+
+
+  led_effects.updateEffects(effect_config);
+  
+}
+
 
 
 void callback_clear(const Trigger::Request & req, Trigger::Response & res){
@@ -427,7 +469,8 @@ void callback_list_id(const Trigger::Request & req, Trigger::Response & res){
   
   char list_id[300];
   
-  id_handler.list_id().toCharArray(list_id, 300);
+  //id_handler.list_id().toCharArray(list_id, 300);
+  led_effects.listID().toCharArray(list_id, 300);
 
   res.success = true;
   res.message = list_id;
@@ -451,6 +494,8 @@ void callback_ack(const Trigger::Request & req, Trigger::Response & res){
 ros::ServiceServer<LedsPaint::Request, LedsPaint::Response> server_paint_mode("arduino_signaling_led/set_leds/paint_mode",&callback_paint);
 ros::ServiceServer<LedsBlink::Request, LedsBlink::Response> server_blink_mode("arduino_signaling_led/set_leds/blink_mode",&callback_blink);
 ros::ServiceServer<LedsShift::Request, LedsShift::Response> server_shift_mode("arduino_signaling_led/set_leds/shift_mode",&callback_shift);
+ros::ServiceServer<robotnik_leds_sdk::LedEffects::Request, robotnik_leds_sdk::LedEffects::Response> server_led_effects("arduino_led_signaling/set_led_properties",&callback_led_effects);
+
 
 ros::ServiceServer<Trigger::Request, Trigger::Response> server_clear_leds("arduino_signaling_led/clear_effects",&callback_clear);
 ros::ServiceServer<Trigger::Request, Trigger::Response> server_list_id("arduino_signaling_led/list_id",&callback_list_id);
@@ -474,6 +519,7 @@ void setup()
   nh.advertiseService(server_paint_mode);
   nh.advertiseService(server_blink_mode);
   nh.advertiseService(server_shift_mode);
+  nh.advertiseService(server_led_effects);
   nh.advertiseService(server_clear_leds);
   nh.advertiseService(server_list_id);
   nh.advertiseService(server_ack);
@@ -484,6 +530,7 @@ void setup()
   pixels.show();
   
   pinMode(13,OUTPUT);
+  
   digitalWrite(13,LOW);
 
 
@@ -499,7 +546,7 @@ void setup()
 
   }
 
-
+  
 }
 
 void loop()
@@ -549,7 +596,7 @@ void loop()
 
 
 
-  
+ 
   for(int i=0; i < NUM_EFFECTS; i++){
 
     paint_effect[i].run();
@@ -565,7 +612,7 @@ void loop()
   }
   
 
-
+  led_effects.runEffects();
 
   
 
