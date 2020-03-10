@@ -1,0 +1,18 @@
+string  id
+string  mode
+uint8   channel
+string  type
+uint8   color_R
+uint8   color_G
+uint8   color_B 
+uint16  start_led
+uint16  end_led
+uint16  ms_on
+uint16  ms_off
+string  direction
+uint16  speed
+uint16  sleep
+bool    enabled
+---
+uint8  state
+
