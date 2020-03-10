@@ -20,8 +20,11 @@
       //int sleep = this -> effect_config.sleep;    //Not used
       int enabled = this -> effect_config.enabled;
 
+      if(checkLedZoneUpdates()){
 
-      
+         count_pixel = start_led;
+         showFillPixels(0,0,0, start_led, end_led);
+      }
 
       if(enabled){
 
