@@ -1,4 +1,3 @@
-string leds_name
 string state
 bool   enable
 ---
