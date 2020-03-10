@@ -649,7 +649,7 @@ void loop()
 
 
 
-/*
+
   // En modo depuracion, comentar este bloque para que la tira no se apague cada rato
   if(timeout_ack > 6000){
   
@@ -659,7 +659,7 @@ void loop()
   
   }
 
-*/
+
    
   
   
