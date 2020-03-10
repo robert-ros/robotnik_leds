@@ -70,14 +70,16 @@
   
       // If the distance beetween new start led and old start led is positive, clean the difference
       if (start_difference > 0){
-  
+
+          updateLedZoneFlag = true;
           fillPixels(0,0,0, old_start_led-1, start_difference);
           showPixels();
       }
   
       // Same logic with the end leds
       if (end_difference  > 0){
-  
+
+          updateLedZoneFlag = true;
           fillPixels(0,0,0, new_end_led , end_difference );
           showPixels();
       } 
@@ -160,6 +162,23 @@
       return isUpdated;
   }
 
+
+  bool CommonEffect::checkLedZoneUpdates(void){
+
+      bool isUpdated;
+
+      if(this -> updateLedZoneFlag)
+          isUpdated = true;
+      else
+          isUpdated = false;
+
+      //Clear updateFlag
+      this -> updateLedZoneFlag = false;
+          
+      return isUpdated;
+    
+    
+    }
     
 
   

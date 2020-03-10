@@ -25,6 +25,9 @@
       enabled(false) {}
   
   String   id;
+  String   mode;
+  uint8_t  channel;
+  String   type;
   uint8_t  color_R;
   uint8_t  color_G;
   uint8_t  color_B;
@@ -47,6 +50,7 @@
     private:
 
         bool updateFlag = false;
+        bool updateLedZoneFlag = false;
 
         
     public:
@@ -68,10 +72,11 @@
 
 
         /* Effects management functions */
-        String   id_assigned = "";
+        String id_assigned = "";
         void assign_id(String id_assigned);
         uint8_t update(struct LedProperties effect_config);
         bool checkUpdates(void);
+        bool checkLedZoneUpdates(void);
         void updateLedZone(struct LedProperties effect_config);
         void updateEffectConfig(struct LedProperties effect_config);
         void resetEffectConfig (void);
