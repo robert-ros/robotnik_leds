@@ -60,6 +60,7 @@ find_package(catkin REQUIRED COMPONENTS
    LedsPaint.srv
    LedsBlink.srv
    LedsShift.srv
+   LedEffects.srv
 #   Service1.srv
 #   Service2.srv
  )
