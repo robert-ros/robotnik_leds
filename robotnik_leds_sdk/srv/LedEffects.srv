@@ -4,7 +4,8 @@ uint8   channel
 string  type
 uint8   color_R
 uint8   color_G
-uint8   color_B 
+uint8   color_B
+uint8   color_W 
 uint16  start_led
 uint16  end_led
 uint16  ms_on
