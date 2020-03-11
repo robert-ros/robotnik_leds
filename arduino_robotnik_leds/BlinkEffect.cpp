@@ -14,6 +14,7 @@
       uint8_t  color_R = this -> effect_config.color_R;
       uint8_t  color_G = this -> effect_config.color_G;
       uint8_t  color_B = this -> effect_config.color_B;
+      uint8_t  color_W = this -> effect_config.color_W;
       uint16_t start_led = this -> effect_config.start_led;
       uint16_t end_led = this -> effect_config.end_led;
       uint16_t ms_on = this -> effect_config.ms_on;
@@ -26,7 +27,7 @@
             
               //fillPixels(color_R,color_G,color_B, start_led-1, blink_pixels);
               //showPixels();
-              showFillPixels(color_R,color_G,color_B, start_led, end_led);
+              showFillPixels(color_R,color_G,color_B, color_W, start_led, end_led);
               blink_time = 0;
               isOn = true;          
            }
@@ -35,7 +36,7 @@
                                      
               //fillPixels(0,0,0, start_led-1, blink_pixels);
               //showPixels();
-              showFillPixels(0,0,0,  start_led, end_led);
+              showFillPixels(0,0,0,0,  start_led, end_led);
               blink_time = 0;
               isOn = false;
           }
