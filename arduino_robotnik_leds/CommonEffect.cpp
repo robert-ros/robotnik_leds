@@ -11,9 +11,9 @@
 
 
 
-  void CommonEffect::fillPixels(int color_R, int color_G, int color_B, int start_led, int count_led ) {
+  void CommonEffect::fillPixels(int color_R, int color_G, int color_B, int color_W, int start_led, int count_led ) {
 
-        pixels->fill(pixels->Color(color_R, color_G, color_B), start_led, count_led);
+        pixels->fill(pixels->Color(color_G, color_R, color_B,  color_W), start_led, count_led);
             
   }
 
@@ -26,9 +26,9 @@
 
 
 
-  void CommonEffect::setPixelsColor(int led, int color_R, int color_G, int color_B){
+  void CommonEffect::setPixelsColor(int led, int color_R, int color_G, int color_B, int color_W){
     
-      pixels->setPixelColor(led, pixels->Color(color_R, color_G, color_B));  
+      pixels->setPixelColor(led, pixels->Color(color_G, color_R, color_B, color_W));  
   
   }
 
@@ -36,12 +36,12 @@
 
    // Fill and show a led strip from start_led to end_led, both included. First led of the strip starts in 1.
 
-  void CommonEffect::showFillPixels(int color_R, int color_G, int color_B, int start_led, int end_led){
+  void CommonEffect::showFillPixels(int color_R, int color_G, int color_B, int color_W, int start_led, int end_led){
     
        //Example: start_led = 2, end_led =  4  There are 4-2+1 = 3 pixels involved
       int count_led =  end_led - start_led + 1; 
       
-      pixels->fill(pixels->Color(color_R, color_G, color_B), start_led - 1, count_led);
+      pixels->fill(pixels->Color(color_G, color_R, color_B, color_W), start_led - 1, count_led);
       pixels->show();
       
   }
@@ -72,7 +72,7 @@
       if (start_difference > 0){
 
           updateLedZoneFlag = true;
-          fillPixels(0,0,0, old_start_led-1, start_difference);
+          fillPixels(0,0,0,0, old_start_led-1, start_difference);
           showPixels();
       }
   
@@ -80,7 +80,7 @@
       if (end_difference  > 0){
 
           updateLedZoneFlag = true;
-          fillPixels(0,0,0, new_end_led , end_difference );
+          fillPixels(0,0,0,0, new_end_led , end_difference );
           showPixels();
       } 
     
@@ -109,7 +109,7 @@
         int end_led = this -> effect_config.end_led;
 
         // Clean led zone
-        showFillPixels(0,0,0, start_led, end_led);
+        showFillPixels(0,0,0,0, start_led, end_led);
  
   }
 

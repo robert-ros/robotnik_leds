@@ -15,6 +15,7 @@
       color_R(0),
       color_G(0),
       color_B(0),
+      color_W(0),
       start_led(0),
       end_led(0),
       ms_on(0),
@@ -31,6 +32,7 @@
   uint8_t  color_R;
   uint8_t  color_G;
   uint8_t  color_B;
+  uint8_t  color_W;
   uint16_t start_led;
   uint16_t end_led;
   uint16_t ms_on = 0;
@@ -65,10 +67,10 @@
 
 
         /* Low level functions */
-        void fillPixels(int color_R, int color_G, int color_B, int start_led, int count_led );
-        void setPixelsColor(int led, int color_R, int color_G, int color_B);
+        void fillPixels(int color_R, int color_G, int color_B,  int color_W, int start_led, int count_led );
+        void setPixelsColor(int led, int color_R, int color_G, int color_B, int color_W);
         void showPixels(void);
-        void showFillPixels(int color_R, int color_G, int color_B, int start_led, int end_led);
+        void showFillPixels(int color_R, int color_G, int color_B, int color_W, int start_led, int end_led);
 
 
         /* Effects management functions */
