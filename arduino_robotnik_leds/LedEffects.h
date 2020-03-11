@@ -40,6 +40,8 @@
       void runEffects(void);
       void clearEffects(void);
       String listID(void);
+      void startSequence(void);
+      void faultSequence(bool fault);
 
   };
 
