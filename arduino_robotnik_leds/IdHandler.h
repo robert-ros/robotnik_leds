@@ -40,8 +40,8 @@
     
     private:
 
-      const int M_DB = 10;       // Max memory of data base
-      String id_data_base[10];   // Data base initialized with a memory of 10 elements
+      const int M_DB = 30;       // Max memory of data base
+      String id_data_base[30];   // Data base initialized with a memory of 10 elements
 
       int find_first_string(String value);
       int find_available_place(void);
