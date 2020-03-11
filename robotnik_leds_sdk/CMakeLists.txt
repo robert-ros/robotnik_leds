@@ -57,9 +57,6 @@ find_package(catkin REQUIRED COMPONENTS
  add_service_files(
    FILES
    SetLeds.srv
-   LedsPaint.srv
-   LedsBlink.srv
-   LedsShift.srv
    LedEffects.srv
 #   Service1.srv
 #   Service2.srv
