@@ -5,14 +5,10 @@ import rospy
 from std_msgs.msg import String
 from std_srvs.srv import Trigger
 from robotnik_leds_sdk.srv import SetLeds, SetLedsResponse
-from robotnik_leds_sdk.srv import LedsPaint, LedsPaintRequest, LedsPaintResponse
-from robotnik_leds_sdk.srv import LedsBlink, LedsBlinkRequest, LedsBlinkResponse
-from robotnik_leds_sdk.srv import LedsShift, LedsShiftRequest, LedsShiftResponse
 from robotnik_leds_sdk.srv import LedEffects, LedEffectsRequest, LedEffectsResponse
 
+
 class LedsDriver:
-
-
 
 
     def __init__(self):
@@ -22,20 +18,12 @@ class LedsDriver:
         rospy.init_node('leds_driver_node')
 
         # Wait for the service offered by the Arduino hardware
-        rospy.wait_for_service('/arduino_signaling_led/set_leds/paint_mode')
-        rospy.wait_for_service('/arduino_signaling_led/set_leds/blink_mode')
-        rospy.wait_for_service('/arduino_signaling_led/set_leds/shift_mode')
-        rospy.wait_for_service('/arduino_signaling_led/ack')
-
+        rospy.wait_for_service('/arduino_led_signaling/ack')
         rospy.wait_for_service('/arduino_led_signaling/set_led_properties')
 
 
         # Connect to the service offered by the Arduino hardware
-        self.leds_driver_paint_service = rospy.ServiceProxy('/arduino_signaling_led/set_leds/paint_mode', LedsPaint)
-        self.leds_driver_blink_service = rospy.ServiceProxy('/arduino_signaling_led/set_leds/blink_mode', LedsBlink)
-        self.leds_driver_shift_service = rospy.ServiceProxy('/arduino_signaling_led/set_leds/shift_mode', LedsShift)
-        self.leds_driver_ack_service   = rospy.ServiceProxy('/arduino_signaling_led/ack', Trigger)
-
+        self.leds_driver_ack_service   = rospy.ServiceProxy('/arduino_led_signaling/ack', Trigger)
         self.leds_driver_effect_service = rospy.ServiceProxy('/arduino_led_signaling/set_led_properties', LedEffects)
 
         # Init service server
@@ -48,147 +36,6 @@ class LedsDriver:
         self.start_time = rospy.get_rostime().secs
 
         
-
-    def set_mode_arduino_signaling_led(self, led_config, state_config, enable):
-
-        #Enable assignation
-        _enable = enable
-        
-        #Led config assignation
-        _name      = led_config.get("name")
-        _leds_zone = led_config.get("leds_zone")
-        _channel   = led_config.get("channel")
-        _type      = led_config.get("type")
-
-        #State config assignation
-        _mode = state_config.get("mode")
-
-
-        #Send the configuration to led device
-        if _mode == "paint":
-
-            _color = state_config.get("color")
-
-            self.paint_mode_arduino_signaling_led(_name, _leds_zone, _channel, _type, _color, _enable)
-
-
-        if _mode == "blink":
-
-            _color = state_config.get("color")
-            _ms_on = state_config.get("ms_on")
-            _ms_off = state_config.get("ms_off")
-
-            self.blink_mode_arduino_signaling_led(_name, _leds_zone, _channel, _type, _color, _ms_on, _ms_off, _enable)
-
-
-        if _mode == "shift":
-
-            _color     =  state_config.get("color")
-            _direction =  state_config.get("direction")
-            _speed     =  state_config.get("speed")
-            _sleep     =  state_config.get("sleep")
-
-            self.shift_mode_arduino_signaling_led(_name, _leds_zone, _channel, _type, _color, _direction, _speed, _sleep, _enable)
-
-
-
-    def shift_mode_arduino_signaling_led(self, name, leds_zone, channel, type, color, direction, speed, sleep, enable):
-
-        #print("==============")
-        #rospy.loginfo("Shift mode!")
-        #print(name)
-        #print(leds_zone)
-        #print(channel)
-        #print(type)
-        #print("------")
-        #print(color)
-        #print(direction)
-        #print(speed)
-        #print(sleep)
-        #print(enable)
-        #print("==============")
-
-        leds_shift_config = LedsShiftRequest()
-        response = LedsShiftResponse()
-
-        leds_shift_config.shift_id = name
-        leds_shift_config.color_R = color[0]
-        leds_shift_config.color_G = color[1]
-        leds_shift_config.color_B = color[2]
-        leds_shift_config.start_led = leds_zone[0]
-        leds_shift_config.end_led = leds_zone[1]
-        leds_shift_config.direction = direction
-        leds_shift_config.speed = speed
-        leds_shift_config.sleep = sleep
-        leds_shift_config.enabled = enable
-
-        response = self.leds_driver_shift_service (leds_shift_config)
-
-        return response
-
-
-
-    def blink_mode_arduino_signaling_led(self, name, leds_zone, channel, type, color, ms_on, ms_off, enable):
-
-        #print("==============")
-        #rospy.loginfo("Blink mode!")
-        #print(name)
-        #print(leds_zone)
-        #print(channel)
-        #print(type)
-        #print("------")
-        #print(color)
-        #print(ms_on)
-        #print(ms_off)
-        #print(enable)
-        #print("==============")
-
-        leds_blink_config = LedsBlinkRequest()
-        response = LedsBlinkResponse()
-
-        leds_blink_config.blink_id = name
-        leds_blink_config.color_R = color[0]
-        leds_blink_config.color_G = color[1]
-        leds_blink_config.color_B = color[2]
-        leds_blink_config.start_led = leds_zone[0]
-        leds_blink_config.end_led = leds_zone[1]
-        leds_blink_config.ms_on = ms_on
-        leds_blink_config.ms_off = ms_off
-        leds_blink_config.enabled = enable
-
-        response = self.leds_driver_blink_service (leds_blink_config)
-
-        return response
-
-
-    def paint_mode_arduino_signaling_led(self, name, leds_zone, channel, type, color, enable):
-
-        #print("==============")
-        #rospy.loginfo("Paint mode!")
-        #print(name)
-        #print(leds_zone)
-        #print(channel)
-        #print(type)
-        #print("------")
-        #print(color)
-        #print(enable)
-        #print("==============")
-
-        leds_paint_config = LedsPaintRequest()
-        response = LedsPaintResponse()
-
-        leds_paint_config.paint_id = name
-        leds_paint_config.color_R = color[0]
-        leds_paint_config.color_G = color[1]
-        leds_paint_config.color_B = color[2]
-        leds_paint_config.start_led = leds_zone[0]
-        leds_paint_config.end_led = leds_zone[1]
-        leds_paint_config.enabled = enable
-
-        response = self.leds_driver_paint_service (leds_paint_config)
-
-        return response
-
 
     def effect_arduino_signaling_led(self, led_config, state_config, enable):
 
@@ -204,6 +51,7 @@ class LedsDriver:
         led_effect_config.color_R   =  state_config.get("color")[0]
         led_effect_config.color_G   =  state_config.get("color")[1]
         led_effect_config.color_B   =  state_config.get("color")[2]
+        led_effect_config.color_W   =  state_config.get("color")[3]
         led_effect_config.start_led =  led_config.get("leds_zone")[0]
         led_effect_config.end_led   =  led_config.get("leds_zone")[1]
 
@@ -350,7 +198,7 @@ class LedsDriver:
 
         current_time = rospy.get_rostime().secs
         
-        if (current_time -self.start_time) >= 4:
+        if (current_time -self.start_time) >= 2:
 
             self.start_time = current_time
             self.leds_driver_ack_service();
