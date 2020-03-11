@@ -1,0 +1,31 @@
+
+led_config_list:
+  
+  - name: "front_right_leds"
+    leds_zone: [1, 5]
+    channel: 0
+    type: "RGB"
+
+
+  - name: "rear_right_leds"
+    leds_zone: [50, 75]
+    channel: 0
+    type: "RGB"
+
+
+  - name: "front_left_leds"
+    leds_zone: [11, 15]
+    channel: 0
+    type: "RGB"
+
+
+  - name: "rear_left_leds"
+    leds_zone: [75, 100]
+    channel: 0
+    type: "RGB"
+
+
+  - name: "all_leds"
+    leds_zone: [1, 100]
+    channel: 0
+    type: "RGB"
