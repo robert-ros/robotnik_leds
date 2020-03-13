@@ -24,6 +24,19 @@ class LedsControl:
 		rospy.loginfo("ALS module activated, node already! ")
 
 
+	def init_seq(self):
+
+		rospy.sleep(1)
+
+		command = SetLedsRequest()
+		rospy.wait_for_service('/leds_driver/command')
+		leds_driver_client = rospy.ServiceProxy('/leds_driver/command', SetLeds)
+
+		command.state = "STOP"
+		command.enable = True
+		leds_driver_client(command)
+
+
 	def cmd_vel_callaback(self, msg):
 
 		command = SetLedsRequest()
@@ -41,18 +54,25 @@ class LedsControl:
 			
 			print("Robot stops!")
 
-			
-			command.state = "TURN_LEFT"
-			command.enable = False
-			leds_driver_client(command)
-
-			command.state = "TURN_RIGHT"
+			command.state = "MOVING"
 			command.enable = False
 			leds_driver_client(command)
 
 			command.state = "STOP"
-			command.enable = True
+			command.enable = False
 			leds_driver_client(command)
+			
+			#command.state = "TURN_LEFT"
+			#command.enable = False
+			#leds_driver_client(command)
+
+			#command.state = "TURN_RIGHT"
+			#command.enable = False
+			#leds_driver_client(command)
+
+			#command.state = "STOP"
+			#command.enable = True
+			#leds_driver_client(command)
 
 
 		else:
@@ -63,14 +83,22 @@ class LedsControl:
 			command.enable = False
 			leds_driver_client(command)
 
-
-			command.state = "TURN_LEFT"
+			command.state = "MOVING"
 			command.enable = True
 			leds_driver_client(command)
 
-			command.state = "TURN_RIGHT"
-			command.enable = True
-			leds_driver_client(command)
+			#command.state = "STOP"
+			#command.enable = False
+			#leds_driver_client(command)
+
+
+			#command.state = "TURN_LEFT"
+			#command.enable = True
+			#leds_driver_client(command)
+
+			#command.state = "TURN_RIGHT"
+			#command.enable = True
+			#leds_driver_client(command)
 
 
 		
@@ -80,8 +108,7 @@ def main():
 
 	leds_control = LedsControl()
 
-
-	
+	leds_control.init_seq()
 
 	while not rospy.is_shutdown():
 
