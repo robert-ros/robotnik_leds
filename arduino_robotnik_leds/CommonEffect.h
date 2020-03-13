@@ -53,7 +53,7 @@
 
         bool updateFlag = false;
         bool updateLedZoneFlag = false;
-
+        bool firstTimeFlag = true;
         
     public:
 
@@ -84,6 +84,7 @@
         void resetEffectConfig (void);
         void cleanCurrentLedZone(void);
         void removeEffect(void);
+        bool firstTime(void);
   };
 
  #endif

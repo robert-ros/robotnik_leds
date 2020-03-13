@@ -100,6 +100,8 @@
         
         //Reset variables to default values
         this -> effect_config = default_effect_config;
+
+        firstTimeFlag = true;
     
   }
 
@@ -137,7 +139,6 @@
               }
               
               else{
-
                   // Clean values of the object, restored default values
                   removeEffect();
               }
@@ -179,6 +180,26 @@
     
     
     }
-    
+
+
+  bool CommonEffect::firstTime(void){
+
+      // firtTimeFlag is set false in firstTime() function and is set true in resetEffectConfig function
+      bool result;
+
+      if(this -> firstTimeFlag){
+          
+          result = true;
+          this -> firstTimeFlag = false;
+      }
+
+      else{
+          result = false;
+                 
+      }
+      
+   
+    return result;
+   }
 
   
