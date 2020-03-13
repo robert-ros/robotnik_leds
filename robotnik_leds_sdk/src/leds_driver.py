@@ -44,7 +44,7 @@ class LedsDriver:
 
         # Basic parameters
 
-        led_effect_config.id        =  led_config.get("name")
+        led_effect_config.id        =  state_config.get("state")
         led_effect_config.mode      =  state_config.get("mode")
         led_effect_config.channel   =  led_config.get("channel")
         led_effect_config.type      =  led_config.get("type")
@@ -104,7 +104,7 @@ class LedsDriver:
 
         for i in range(0, len(list)):
 
-            _led_name = list[i].get("name")
+            _led_name = list[i].get("led_name")
             
             if _led_name == led_name_req:
 
@@ -124,7 +124,7 @@ class LedsDriver:
 
         if _nameFound == False:
 
-            rospy.logerr("Name '" + led_name_req + "' not found in rosparam server. Check that the name exists in the led_config.yaml")
+            rospy.logerr("Led name '" + led_name_req + "' not found in rosparam server. Check that the name exists in the led_config.yaml")
             _led_config = {}
 
 
@@ -144,7 +144,7 @@ class LedsDriver:
 
         for i in range(0, len(list)):
 
-            _state_name = list[i].get("name")
+            _state_name = list[i].get("state")
             
             if _state_name == led_state_req:
 
@@ -156,7 +156,7 @@ class LedsDriver:
 
         if _stateFound == False:
 
-            rospy.logerr("Name '" + led_state_req + "' not found in rosparam server. Check that the name exists in the led_state.yaml")
+            rospy.logerr("State '" + led_state_req + "' not found in rosparam server. Check that the name exists in the led_state.yaml")
             _state_config = {}
 
 
