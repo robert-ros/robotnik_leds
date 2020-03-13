@@ -14,7 +14,6 @@
       /* Auxiliar global variables */
       bool isOn = false;         //Indica si el el led debe estar encendido o apagado
       elapsedMillis blink_time;  //Tiempo transcurrido entre un intervalo
-
       
     public:
     

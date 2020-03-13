@@ -21,26 +21,36 @@
       uint16_t ms_off = this -> effect_config.ms_off;
       bool     enabled = this -> effect_config.enabled;
 
+
       if(enabled){
-  
-          if(blink_time > ms_off && !isOn){
+
+           
+          if(firstTime()){
             
-              //fillPixels(color_R,color_G,color_B, start_led-1, blink_pixels);
-              //showPixels();
-              showFillPixels(color_R,color_G,color_B, color_W, start_led, end_led);
-              blink_time = 0;
-              isOn = true;          
-           }
-
-          if(blink_time > ms_on && isOn){
-                                     
-              //fillPixels(0,0,0, start_led-1, blink_pixels);
-              //showPixels();
-              showFillPixels(0,0,0,0,  start_led, end_led);
-              blink_time = 0;
-              isOn = false;
+              blink_time = 0;        
+              isOn = true;
           }
+  
+          if(blink_time < ms_off && isOn){
 
+              showFillPixels(color_R,color_G,color_B, color_W, start_led, end_led);
+              isOn = false;
+           }
+    
+  
+           else if (blink_time >= ms_on && blink_time <= ms_on+ms_off && !isOn){
+    
+              showFillPixels(0,0,0,0,  start_led, end_led);
+              isOn = true;
+            }
+
+
+            else if (blink_time >= ms_on+ms_off){
+  
+              blink_time = 0;
+            } 
+
+          
       }
     
   }
