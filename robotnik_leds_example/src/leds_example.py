@@ -13,7 +13,7 @@ class LedsControl:
 		rospy.init_node('leds_example_node')
 
 		# Subscribe to cmd_vel robot 
-		rospy.Subscriber("/robot/robotnik_base_control/cmd_vel", Twist, self.cmd_vel_callaback)
+		rospy.Subscriber("/robot/robotnik_base_control/cmd_vel", Twist, self.cmd_vel_callaback, queue_size=1)
         
 
 		rospy.loginfo("Waiting Arduino Lighting Signaling (ALS module) ...")		
@@ -48,7 +48,7 @@ class LedsControl:
 		vel_z = msg.angular.z
 
 
-		if vel_x == 0 and vel_y == 0 and vel_z == 0:
+		if vel_x <= 0.01 and vel_x >= -0.01 and vel_y <= 0.01 and vel_y >= -0.01 and vel_z <= 0.01 and vel_z >= -0.01:
 
 			#Important: First disable effects, then activate effects
 			
@@ -59,7 +59,7 @@ class LedsControl:
 			leds_driver_client(command)
 
 			command.state = "STOP"
-			command.enable = False
+			command.enable = True
 			leds_driver_client(command)
 			
 			#command.state = "TURN_LEFT"
