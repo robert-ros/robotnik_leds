@@ -101,17 +101,24 @@ LedEffects  led_effects = LedEffects(pixels);
 
 elapsedMillis timeout_system;
 
+elapsedMillis timeout_service;
 
 
 void clear_led_effects(){
 
-  timeout_ack = 0;
+  timeout_ack = 0;  
+  led_effects.timeoutACK = 0;
+  
   led_effects.clearEffects();
 
 }
 
 
 void callback_led_effects(const robotnik_leds_sdk::LedEffects::Request & req, robotnik_leds_sdk::LedEffects::Response & res){
+
+  led_effects.timeoutACK = 0;
+   
+  led_effects.firstCommandFlag = true;
   
   struct LedProperties effect_config;
 
@@ -134,7 +141,8 @@ void callback_led_effects(const robotnik_leds_sdk::LedEffects::Request & req, ro
 
 
   led_effects.updateEffects(effect_config);
-  
+
+
 }
 
 
@@ -142,6 +150,7 @@ void callback_led_effects(const robotnik_leds_sdk::LedEffects::Request & req, ro
 void callback_clear(const Trigger::Request & req, Trigger::Response & res){
 
    timeout_ack = 0;
+   led_effects.timeoutACK = 0;
 
    clear_led_effects();
    res.success = true;
@@ -153,6 +162,7 @@ void callback_clear(const Trigger::Request & req, Trigger::Response & res){
 void callback_list_id(const Trigger::Request & req, Trigger::Response & res){
 
   timeout_ack = 0;
+  led_effects.timeoutACK = 0;
   
   char list_id[300];
   
@@ -167,6 +177,9 @@ void callback_list_id(const Trigger::Request & req, Trigger::Response & res){
 void callback_ack(const Trigger::Request & req, Trigger::Response & res){
   
   timeout_ack = 0;
+  led_effects.firstACKFlag = true;
+  led_effects.timeoutACK = 0;
+  
   digitalWrite(13,LOW);
   res.success = true;
   res.message = "OK";
@@ -234,7 +247,7 @@ void setup()
   Serial.begin(2000000);
 
     
-  led_effects.startSequence();
+  //led_effects.startSequence();
 
   
 }
@@ -252,12 +265,14 @@ void loop()
 
    // Uncomment to work in debug mode
   //checkConnection();
+
   
+/*
   if(timeout_ack > 3000){
   
       clear_led_effects();
       timeout_ack = 0;
       digitalWrite(13,HIGH);
   }
-
+*/
 }

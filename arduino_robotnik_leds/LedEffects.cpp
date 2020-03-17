@@ -185,15 +185,185 @@
 
   }
 
-  void LedEffects::runEffects(void){
 
-      for(int i = 0; i < NUM_EFFECTS; i++){ 
-          
+
+  void LedEffects::bootingMode(void){
+
+      clearEffects();
+
+      struct LedProperties effect_config;
+    
+      effect_config.id = "BOOTING";
+      effect_config.mode = "blink";
+      effect_config.color_R = 20;
+      effect_config.color_G = 20;
+      effect_config.color_B = 20;
+      effect_config.color_W = 0;
+      effect_config.start_led = 1;
+      effect_config.end_led = 400;
+      effect_config.ms_on = 500;
+      effect_config.ms_off = 500;
+      effect_config.enabled = true; 
+
+      //Update the effect
+      updateEffects(effect_config);
+    
+    
+  }
+
+
+  void LedEffects::readyMode(bool enabled){
+
+      struct LedProperties effect_config;
+
+      if(enabled){
+        
+           clearEffects();
+      
+      }
+      
+      effect_config.id = "READY";
+      effect_config.mode = "paint";
+      effect_config.color_R = 0;
+      effect_config.color_G = 255;
+      effect_config.color_B = 0;
+      effect_config.color_W = 0;
+      effect_config.start_led = 1;
+      effect_config.end_led = 400;
+      effect_config.enabled = enabled; 
+      
+      //Update the effect
+      updateEffects(effect_config);
+      
+  }
+
+
+  void LedEffects::exitMode(void){
+
+      clearEffects();
+
+      struct LedProperties effect_config;
+      
+      effect_config.id = "EXIT";
+      effect_config.mode = "paint";
+      effect_config.color_R = 0;
+      effect_config.color_G = 0;
+      effect_config.color_B = 20;
+      effect_config.color_W = 0;
+      effect_config.start_led = 1;
+      effect_config.end_led = 400;
+      effect_config.enabled = true; 
+
+      //Update the effect
+       updateEffects(effect_config);
+    
+  }
+
+  void LedEffects::runningMode(void){    
+
+    
+     for(int i = 0; i < NUM_EFFECTS; i++){ 
+      
           paint_effect[i] -> run();
           blink_effect[i] -> run();
           shift_effect[i] -> run();
+      }
+    
+    
+  }
+
+  bool LedEffects::checkConnectionROS(void){
+
+      bool shutdownROS = false;
+
+        //Check connection
+        if(timeoutACK > 1000)
+            shutdownROS = true;
+
+      return shutdownROS;
+    
+  }
+
+
+  
+
+  void LedEffects::runEffects(void){
+
+    switch(state){
+      
+      case BOOTING:
+    
+            // Booting mode, ROS is starting and Teensy is already
+            bootingMode();
+  
+            state = WAITING_ROS;
         
-      }    
+            break;
+
+      case WAITING_ROS:
+
+             if(SerialUSB && firstACKFlag)
+                 state = READY;
+             break;
+          
+      case READY:
+
+            // Ready mode, ROS is ready to send commands to Teensy
+            
+            readyMode(true);
+  
+            state = WAITING_FIRST_COMMAND;
+          
+            break;
+          
+      case WAITING_FIRST_COMMAND:
+
+            if(firstCommandFlag){
+              
+                readyMode(false);
+                
+                //Reset timeout
+                timeoutACK = 0;
+  
+                state = RUNNING;
+            }     
+  
+      
+            //Check connection
+            if(checkConnectionROS())
+                state = EXIT;
+          
+  
+            break;
+      
+      case RUNNING:
+               
+            //Running mode, ROS sends commands to Teensy
+  
+            //Check connection
+            if(checkConnectionROS())
+                state = EXIT;
+          
+            break;
+      
+      case EXIT:
+      
+            // Exit mode, ROS is shutdown, Teensy set the leds in exit mode
+            exitMode();
+  
+            firstCommandFlag = false;
+            firstACKFlag = false;
+  
+            state = WAITING_ROS;
+            
+            break;
+    }
+
+
+    // Execute effects set by updateEffects
+    runningMode();
+
+          
   }
 
   void LedEffects::clearEffects(void){
@@ -259,6 +429,9 @@
       }
     
   }
+
+
+  
 
   
   String LedEffects::listID(void){
