@@ -198,7 +198,7 @@ class LedsDriver:
 
         current_time = rospy.get_rostime().secs
         
-        if (current_time -self.start_time) >= 2:
+        if (current_time -self.start_time) >= 0.5:
 
             self.start_time = current_time
             self.leds_driver_ack_service();
