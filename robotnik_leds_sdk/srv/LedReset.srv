@@ -1,0 +1,4 @@
+string password  # Same password used on robotnik robots
+bool   reset     # Flag to reset the hardware board
+---
+string message

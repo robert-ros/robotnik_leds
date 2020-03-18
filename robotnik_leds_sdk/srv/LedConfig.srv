@@ -1,0 +1,15 @@
+string password  # Same password used on robotnik robots
+string state     # BOOTING, READY, EXIT
+string mode	 # Properties to configure effects
+uint8  color_R   
+uint8  color_G
+uint8  color_B
+uint8  color_W 
+uint16 start_led
+uint16 end_led
+uint16 ms_on
+uint16 ms_off
+string direction
+uint16 speed
+---
+string message
