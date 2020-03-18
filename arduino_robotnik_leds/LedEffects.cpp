@@ -5,6 +5,7 @@
   #include "LedEffects.h"
 
   
+  
   LedEffects::LedEffects(Adafruit_NeoPixel &pixels) {
 
 
@@ -192,7 +193,8 @@
       clearEffects();
 
       struct LedProperties effect_config;
-    
+      effect_config = readStateConfig("BOOTING");
+/*    
       effect_config.id = "BOOTING";
       effect_config.mode = "blink";
       effect_config.color_R = 20;
@@ -204,6 +206,7 @@
       effect_config.ms_on = 500;
       effect_config.ms_off = 500;
       effect_config.enabled = true; 
+*/
 
       //Update the effect
       updateEffects(effect_config);
@@ -221,7 +224,8 @@
            clearEffects();
       
       }
-      
+      effect_config = readStateConfig("READY");
+      /*
       effect_config.id = "READY";
       effect_config.mode = "paint";
       effect_config.color_R = 0;
@@ -231,6 +235,7 @@
       effect_config.start_led = 1;
       effect_config.end_led = 400;
       effect_config.enabled = enabled; 
+      */
       
       //Update the effect
       updateEffects(effect_config);
@@ -243,7 +248,9 @@
       clearEffects();
 
       struct LedProperties effect_config;
-      
+
+      effect_config = readStateConfig("EXIT");
+/*      
       effect_config.id = "EXIT";
       effect_config.mode = "paint";
       effect_config.color_R = 0;
@@ -253,7 +260,7 @@
       effect_config.start_led = 1;
       effect_config.end_led = 400;
       effect_config.enabled = true; 
-
+*/
       //Update the effect
        updateEffects(effect_config);
     
@@ -277,7 +284,7 @@
       bool shutdownROS = false;
 
         //Check connection
-        if(timeoutACK > 1000)
+        if(timeoutACK > ROS_TIMEOUT)
             shutdownROS = true;
 
       return shutdownROS;
@@ -442,6 +449,244 @@
   }
 
 
+
+  String LedEffects::configDevice(String password, struct LedProperties device_config, String state){
+
+      String message;
+    
+      if(password.equals("R0b0tn1K")){
+
+  
+          if(state.equals("BOOTING")){
+
+              if (saveStateConfig(device_config, "BOOTING"))
+                  message = "BOOTING state has been configured correctly";
+              else
+                  message = "Incorrect configuration";
+          }
+
+          else if(state.equals("READY")){
+
+              if (saveStateConfig(device_config, "READY"))
+                  message = "READY state has been configured correctly";
+              else
+                  message = "Incorrect configuration";
+          }
+
+          else if(state.equals("EXIT")){
+
+              if(saveStateConfig(device_config, "EXIT"))
+                  message = "EXIT state has been configured correctly";
+              else
+                  message = "Incorrect configuration";
+          }
+
+          else {
+              message = "This state does not exist";
+          }
+        
+      }
+      else{
+        
+        message = "Incorrect password";
+      }
+
+
+     return message;
+  }
+
+
+  bool LedEffects::saveStateConfig(struct LedProperties device_config, String state){
+
+    // Active wait to avoid writing to memory multiple times
+    delay(2000);
+
+    bool status = true; 
+
+    byte state_addr = 0;
+    byte mode_id = 0;
+    byte color_R = 0, color_G = 0, color_B = 0, color_W = 0;
+    byte start_led_MSB = 0, start_led_LSB = 0;
+    byte end_led_MSB = 0, end_led_LSB = 0; 
+    byte ms_off_MSB = 0, ms_off_LSB = 0;
+    byte ms_on_MSB = 0, ms_on_LSB = 0;
+    byte direction = 0;
+    byte speed_MSB = 0, speed_LSB = 0;
+
+    if(state.equals("BOOTING"))
+        state_addr = 20;
+    if(state.equals("READY"))
+        state_addr = 40;
+    if(state.equals("EXIT"))
+        state_addr = 60;
+
+
+    if(device_config.mode.equals("paint"))
+        mode_id = 1;
+    if(device_config.mode.equals("blink"))
+        mode_id = 2;
+    if(device_config.mode.equals("shift"))
+        mode_id = 3;
+
+    if (state_addr != 0 && mode_id != 0) {
+      
+       color_R = device_config.color_R;
+       color_G = device_config.color_G;
+       color_B = device_config.color_B;
+       color_W = device_config.color_W;
+    
+       start_led_MSB = device_config.start_led >> 8;
+       start_led_LSB = device_config.start_led & 255;
+    
+       end_led_MSB = device_config.end_led >> 8;
+       end_led_LSB = device_config.end_led & 255;
+    
+       ms_off_MSB = device_config.ms_off >> 8;
+       ms_off_LSB = device_config.ms_off & 255;
+    
+       ms_on_MSB = device_config.ms_on >> 8;
+       ms_on_LSB = device_config.ms_on & 255;
+    
+       if(device_config.direction.equals("right"))
+          direction = 0;
+       else
+          direction = 1;
+          
+       speed_MSB = device_config.speed >> 8;
+       speed_LSB = device_config.speed & 255;
+    
+       // Parameters: - address, - value to be saved 
+       EEPROM.write(state_addr + 1,  mode_id);
+       EEPROM.write(state_addr + 2,  color_R);
+       EEPROM.write(state_addr + 3,  color_G);
+       EEPROM.write(state_addr + 4,  color_B);
+       EEPROM.write(state_addr + 5,  color_W);
+       EEPROM.write(state_addr + 6,  start_led_MSB);
+       EEPROM.write(state_addr + 7,  start_led_LSB);
+       EEPROM.write(state_addr + 8,  end_led_MSB);
+       EEPROM.write(state_addr + 9,  end_led_LSB);
+       EEPROM.write(state_addr + 10, ms_off_MSB);
+       EEPROM.write(state_addr + 11, ms_off_LSB);
+       EEPROM.write(state_addr + 12, ms_on_MSB);
+       EEPROM.write(state_addr + 13, ms_on_LSB);
+       EEPROM.write(state_addr + 14, direction);
+       EEPROM.write(state_addr + 15, speed_MSB);
+       EEPROM.write(state_addr + 16, speed_LSB);
+
+    }
+
+    else {
+        status = false;
+    }
+
+    return status;
+  }
+
+
+  LedProperties LedEffects::readStateConfig(String state){
+    
+       byte state_addr = 0;
+       byte mode_id = 0;
+       byte color_R = 0, color_G = 0, color_B = 0, color_W = 0;
+       byte start_led_MSB = 0, start_led_LSB = 0;
+       byte end_led_MSB = 0, end_led_LSB = 0; 
+       byte ms_off_MSB = 0, ms_off_LSB = 0;
+       byte ms_on_MSB = 0, ms_on_LSB = 0;
+       byte direction = 0;
+       byte speed_MSB = 0, speed_LSB = 0;
+    
+
+       struct LedProperties device_config;
+        
+       if(state.equals("BOOTING"))
+            state_addr = 20;
+       if(state.equals("READY"))
+            state_addr = 40;
+       if(state.equals("EXIT"))
+            state_addr = 60;
+            
+       device_config.id = state;  
+       device_config.enabled = true;   
+    
+       mode_id       = EEPROM.read(state_addr + 1);
+       color_R       = EEPROM.read(state_addr + 2);
+       color_G       = EEPROM.read(state_addr + 3);
+       color_B       = EEPROM.read(state_addr + 4);
+       color_W       = EEPROM.read(state_addr + 5);
+       start_led_MSB = EEPROM.read(state_addr + 6);
+       start_led_LSB = EEPROM.read(state_addr + 7);
+       end_led_MSB   = EEPROM.read(state_addr + 8);
+       end_led_LSB   = EEPROM.read(state_addr + 9);
+       
+       ms_off_MSB    = EEPROM.read(state_addr + 10);
+       ms_off_LSB    = EEPROM.read(state_addr + 11);
+       ms_on_MSB     = EEPROM.read(state_addr + 12);
+       ms_on_LSB     = EEPROM.read(state_addr + 13);
+       direction     = EEPROM.read(state_addr + 14);
+       speed_MSB     = EEPROM.read(state_addr + 15);
+       speed_LSB     = EEPROM.read(state_addr + 16);
+    
+    
+       if(mode_id == 1)
+          device_config.mode = "paint";
+       if(mode_id == 2)
+          device_config.mode = "blink";
+       if(mode_id == 3)
+          device_config.mode = "shift"; 
+    
+       device_config.color_R = color_R;
+       device_config.color_G = color_G;
+       device_config.color_B = color_B;
+       device_config.color_W = color_W;
+    
+       device_config.start_led = ((start_led_MSB << 8 ) | start_led_LSB);
+       device_config.end_led = ((end_led_MSB << 8 ) | end_led_LSB);
+    
+       device_config.ms_off = ((ms_off_MSB << 8 ) | ms_off_LSB);
+       device_config.ms_on = ((ms_on_MSB << 8 ) | ms_on_LSB);  
+    
+       if(direction == 0)
+          device_config.direction = "right";
+       else
+          device_config.direction = "left";
+    
+       device_config.speed = ((speed_MSB << 8 ) | speed_LSB);
+
+     
+     return device_config;
+    
+  }
+
+
+  String LedEffects::resetDevice(String password){
+
+      String message;
+      
+      if(password.equals("R0b0tn1K")){
+      
+            /* Waring zone */
+      
+            // Active wait
+            delay(5000);
+      
+            // Reset the hardware
+            _reboot_Teensyduino_();
+
+            // If the hardware is reset, it should never reach this line of code
+            message = "ERROR: If you see this message, the device has not been reset";
+            
+      }
+
+      else {
+
+         message = "Incorrect password";
+        
+      }
+
+      return message;
+    
+  }
+  
   void LedEffects::startSequence(void){
 
 

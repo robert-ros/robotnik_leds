@@ -13,10 +13,14 @@
   #include "PaintEffect.h"
   #include "CommonEffect.h"
 
+  #include <EEPROM.h>
+
   
   class LedEffects{
 
     private:
+
+      const float ROS_TIMEOUT = 1500; //Timeout that checks the connection between this device and ROS
 
       IdHandler database;
 
@@ -35,7 +39,8 @@
       void runningMode(void);
       void exitMode(void);
       bool checkConnectionROS(void);
-
+      bool saveStateConfig(struct LedProperties device_config, String state);
+      LedProperties readStateConfig(String state);
       int state = BOOTING;
 
 
@@ -48,8 +53,12 @@
       void runEffects(void);
       void clearEffects(void);
       String listID(void);
+      String resetDevice(String password);
+      
       void startSequence(void);
       void faultSequence(bool fault);
+
+      String configDevice(String password, struct LedProperties device_config, String state);
 
       // This varaible is set to true in the callback service
       bool firstCommandFlag = false;

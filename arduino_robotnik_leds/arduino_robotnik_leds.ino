@@ -78,10 +78,14 @@
 #include "LedEffects.h"
 
 #include <robotnik_leds_sdk/LedEffects.h>
+#include <robotnik_leds_sdk/LedConfig.h>
+#include <robotnik_leds_sdk/LedReset.h>
 #include <std_srvs/Trigger.h>
 
 ros::NodeHandle  nh;
 //using robotnik_leds_sdk::LedEffects;
+using robotnik_leds_sdk::LedConfig;
+using robotnik_leds_sdk::LedReset;
 using std_srvs::Trigger;
 
 
@@ -147,6 +151,8 @@ void callback_led_effects(const robotnik_leds_sdk::LedEffects::Request & req, ro
 
 
 
+
+
 void callback_clear(const Trigger::Request & req, Trigger::Response & res){
 
    timeout_ack = 0;
@@ -186,6 +192,54 @@ void callback_ack(const Trigger::Request & req, Trigger::Response & res){
   
 }
 
+void callback_config(const LedConfig::Request & req, LedConfig::Response & res){
+
+    struct LedProperties device_config;
+    String password; 
+    String state;
+    char   message[300];
+
+    state = req.state;
+    password = req.password;
+
+    device_config.mode = req.mode;
+    device_config.color_R = req.color_R;
+    device_config.color_G = req.color_G;
+    device_config.color_B = req.color_B;
+    device_config.color_W = req.color_W;
+    device_config.start_led = req.start_led;
+    device_config.end_led = req.end_led;
+    device_config.ms_on = req.ms_on;
+    device_config.ms_off = req.ms_off;
+    device_config.direction = req.direction;
+    device_config.speed = req.speed;
+    
+    
+    led_effects.configDevice(password, device_config, state).toCharArray(message, 300);
+
+
+    
+    res.message = message;
+  
+}
+
+
+void callback_reset(const LedReset::Request & req, LedReset::Response & res){
+  
+   char message[300]; 
+   String password;
+
+   password = req.password;
+    
+   led_effects.resetDevice(password).toCharArray(message, 300);
+  
+   res.message = message;
+   
+  }
+
+
+
+
 // If ack is no received, clear all led effects and set the led strip in fault moode
 /*
  * void checkConnection(){
@@ -211,12 +265,12 @@ void callback_ack(const Trigger::Request & req, Trigger::Response & res){
 */
 
 
-// signaling_led_device/set_effect
 ros::ServiceServer<robotnik_leds_sdk::LedEffects::Request, robotnik_leds_sdk::LedEffects::Response> server_led_effects("arduino_led_signaling/set_led_properties",&callback_led_effects);
 ros::ServiceServer<Trigger::Request, Trigger::Response> server_clear_leds("arduino_led_signaling/clear_effects",&callback_clear);
 ros::ServiceServer<Trigger::Request, Trigger::Response> server_list_id("arduino_led_signaling/list_id",&callback_list_id);
+ros::ServiceServer<LedConfig::Request, LedConfig::Response> server_config("arduino_led_signaling/config/default_states",&callback_config);
 ros::ServiceServer<Trigger::Request, Trigger::Response> server_ack("arduino_led_signaling/ack",&callback_ack);
-
+ros::ServiceServer<LedReset::Request, LedReset::Response> server_reset("arduino_led_signaling/config/reset_device",&callback_reset);
 
 
 void setup()
@@ -236,7 +290,8 @@ void setup()
   nh.advertiseService(server_clear_leds);
   nh.advertiseService(server_list_id);
   nh.advertiseService(server_ack);
-  
+  nh.advertiseService(server_config);
+  nh.advertiseService(server_reset);
  
   pixels.begin();
   pixels.clear();
