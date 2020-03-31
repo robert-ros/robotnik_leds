@@ -13,21 +13,21 @@ class LedsDriver:
 
     def __init__(self):
 
-
         # Init node
         rospy.init_node('leds_driver_node')
 
-        # Wait for the service offered by the Arduino hardware
-        rospy.wait_for_service('/arduino_led_signaling/ack')
-        rospy.wait_for_service('/arduino_led_signaling/set_led_properties')
+        rospy.loginfo("Loading driver, waiting for Arduino Lighting Signaling (ALS module)...")
 
+        # Wait for the service offered by the Arduino hardware
+        rospy.wait_for_service('arduino_led_signaling/ack')
+        rospy.wait_for_service('arduino_led_signaling/set_led_properties')
 
         # Connect to the service offered by the Arduino hardware
-        self.leds_driver_ack_service   = rospy.ServiceProxy('/arduino_led_signaling/ack', Trigger)
-        self.leds_driver_effect_service = rospy.ServiceProxy('/arduino_led_signaling/set_led_properties', LedEffects)
+        self.leds_driver_ack_service   = rospy.ServiceProxy('arduino_led_signaling/ack', Trigger)
+        self.leds_driver_effect_service = rospy.ServiceProxy('arduino_led_signaling/set_led_properties', LedEffects)
 
         # Init service server
-        leds_service = rospy.Service('/leds_driver/command', SetLeds, self.leds_service_callback)
+        leds_service = rospy.Service('leds_driver/command', SetLeds, self.leds_service_callback)
 
         #Get name of this node
         self.node_name = rospy.get_name()
@@ -35,6 +35,7 @@ class LedsDriver:
         #Get current time
         self.start_time = rospy.get_rostime().secs
 
+        rospy.loginfo("ALS module activated, node already! ")
         
 
     def effect_arduino_signaling_led(self, led_config, state_config, enable):
@@ -93,7 +94,7 @@ class LedsDriver:
 
 
 
-    def get_config_params(self, led_name_req):
+    def get_config_params(self, led_label_req):
 
         # Get led_config_list from rosparam
         list = rospy.get_param(self.node_name + "/led_config_list")
@@ -104,9 +105,9 @@ class LedsDriver:
 
         for i in range(0, len(list)):
 
-            _led_name = list[i].get("led_name")
+            _led_label = list[i].get("led_label")
             
-            if _led_name == led_name_req:
+            if _led_label == led_label_req:
 
                 _nameFound = True
                 _led_config = list[i]
@@ -115,7 +116,7 @@ class LedsDriver:
                 #_channel = list[i].get("channel")
                 #_type = list[i].get("type")
 
-                #rospy.loginfo("Name '" + _led_name + "' found:\n"+ 
+                #rospy.loginfo("Name '" + _led_label + "' found:\n"+ 
                 #"led_zone: " + str(_leds_zone) +  "\n" + 
                 #"channel: "  + str(_channel)   +  "\n" +
                 #"type: "     + str(_type)      +  "\n" +
@@ -124,7 +125,7 @@ class LedsDriver:
 
         if _nameFound == False:
 
-            rospy.logerr("Led name '" + led_name_req + "' not found in rosparam server. Check that the name exists in the led_config.yaml")
+            rospy.logerr("Led name '" + led_label_req + "' not found in rosparam server. Check that the name exists in the led_config.yaml")
             _led_config = {}
 
 
@@ -174,21 +175,47 @@ class LedsDriver:
 
         #If name_req or state_req does not exist return a empty list
         state_config = self.get_state_params(led_state_req)
-        led_name = state_config.get("led_name")
-        led_config = self.get_config_params(led_name)
+        
+        led_label_list = state_config.get("led_label")
+
+        part = 0
+
+        led_label_init_items = len(led_label_list)
 
 
-        #Check if dictionary is not empty
-        if bool(led_config) and bool (state_config):
+        while len(led_label_list) > 0:
 
-            #self.set_mode_arduino_signaling_led(led_config,state_config, led_enable_req )      
-            self.effect_arduino_signaling_led(led_config, state_config, led_enable_req)
-            res.success = True
-            res.message = str(led_name) + " has been set to " + str(led_state_req) + " mode and is " + str (led_enable_req)
+            led_label = led_label_list.pop(0)
 
-        else:
-            res.success = True
-            res.message = "Error: led_name or state_name does not exist"
+            led_label_name = str(led_label)
+
+            multi_state_config = state_config.copy()
+
+            multi_state_config["led_label"] = led_label_name
+
+            state_name = str(state_config.get("state"))
+
+            part = part + 1
+
+            #If multiple labels exist, they are separated into multiple names
+            if (led_label_init_items > 1):
+
+                multi_state_config["state"] = state_name + "_PART_" + str(part)
+
+
+            led_config = self.get_config_params(led_label)
+
+            #Check if dictionary is not empty
+            if bool(led_config) and bool (multi_state_config):
+
+                #Send the configuration to ALS device    
+                self.effect_arduino_signaling_led(led_config, multi_state_config, led_enable_req)
+                res.success = True
+                res.message = str(led_label) + " has been set to " + str(led_state_req) + " mode and is " + str (led_enable_req)
+
+            else:
+                res.success = True
+                res.message = "Error: led_label or state_name does not exist"
 
 
         return res
@@ -196,12 +223,14 @@ class LedsDriver:
 
     def hold_connection(self):
 
-        current_time = rospy.get_rostime().secs
-        
-        if (current_time -self.start_time) >= 0.5:
+        self.leds_driver_ack_service();
 
-            self.start_time = current_time
-            self.leds_driver_ack_service();
+        #current_time = rospy.get_rostime().secs
+        
+        #if (current_time -self.start_time) >= 0.5:
+
+        #    self.start_time = current_time
+        #    self.leds_driver_ack_service();
 
 
 
@@ -213,6 +242,8 @@ def main():
     while not rospy.is_shutdown():
 
         leds_driver.hold_connection()
+
+        rospy.sleep(0.5)
 
 
        
