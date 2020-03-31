@@ -1,0 +1,11 @@
+led_config_list:
+  
+  - led_label: "all_leds"
+    leds_zone: [1,300]
+    channel: 0
+    type: "RGBW"
+
+  - led_label: "front_leds"
+    leds_zone: [1, 10]
+    channel: 0
+    type: "RGBW"

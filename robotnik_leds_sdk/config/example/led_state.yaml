@@ -1,0 +1,20 @@
+led_state_list:
+   
+  - state: "MOVING"
+    led_label: ["all_leds"]
+    mode: "blink"
+    color: [0, 255, 0, 0]
+    ms_on: 1000
+    ms_off: 1000
+
+  - state: "STOP"
+    led_label: ["all_leds"]
+    mode: "paint"
+    color: [0, 255, 0, 0]
+
+  - state: "STATE_1"
+    led_label: ["front_leds"]
+    mode: "shift"
+    color: [0, 0, 255, 0]
+    speed: 1000
+    direction: "right"
