@@ -40,6 +40,7 @@
   String   direction = "right";
   uint16_t speed = 0;
   uint16_t sleep = 0;
+  uint16_t led_increment=0;
   bool     enabled;
   
   };
@@ -68,7 +69,7 @@
 
         /* Low level functions */
         void fillPixels(int color_R, int color_G, int color_B,  int color_W, int start_led, int count_led );
-        void setPixelsColor(int led, int color_R, int color_G, int color_B, int color_W);
+        void setOnePixelColor(int led, int color_R, int color_G, int color_B, int color_W);
         void showPixels(void);
         void showFillPixels(int color_R, int color_G, int color_B, int color_W, int start_led, int end_led);
 

@@ -26,7 +26,7 @@
 
 
 
-  void CommonEffect::setPixelsColor(int led, int color_R, int color_G, int color_B, int color_W){
+  void CommonEffect::setOnePixelColor(int led, int color_R, int color_G, int color_B, int color_W){
     
       pixels->setPixelColor(led, pixels->Color(color_G, color_R, color_B, color_W));  
   
