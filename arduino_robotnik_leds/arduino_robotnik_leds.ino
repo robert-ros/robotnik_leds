@@ -141,6 +141,7 @@ void callback_led_effects(const robotnik_leds_sdk::LedEffects::Request & req, ro
   effect_config.direction = req.direction;
   effect_config.speed = req.speed;
   effect_config.sleep = req.sleep;
+  effect_config.led_increment = 3;
   effect_config.enabled = req.enabled;
 
 
@@ -213,7 +214,7 @@ void callback_config(const LedConfig::Request & req, LedConfig::Response & res){
     device_config.ms_off = req.ms_off;
     device_config.direction = req.direction;
     device_config.speed = req.speed;
-    
+    device_config.led_increment = 3;
     
     led_effects.configDevice(password, device_config, state).toCharArray(message, 300);
 
@@ -301,8 +302,7 @@ void setup()
   digitalWrite(13,LOW);
   Serial.begin(2000000);
 
-    
-  //led_effects.startSequence();
+  Serial1.begin(2000000);
 
   
 }
@@ -318,16 +318,4 @@ void loop()
 
   led_effects.runEffects();
 
-   // Uncomment to work in debug mode
-  //checkConnection();
-
-  
-/*
-  if(timeout_ack > 3000){
-  
-      clear_led_effects();
-      timeout_ack = 0;
-      digitalWrite(13,HIGH);
-  }
-*/
 }
