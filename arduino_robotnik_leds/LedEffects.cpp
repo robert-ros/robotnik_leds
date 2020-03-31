@@ -68,7 +68,7 @@
      
         paint_effect[task_id] -> assign_id(effect_config.id);
         paint_effect[task_id] -> update(effect_config);   
-       
+        
       }
 
 
@@ -148,7 +148,7 @@
         
         blink_effect[task_id] -> update(effect_config);
         blink_effect[task_id] -> assign_id("");  
-      
+                    
       }
 
       if(mode == "shift"){
@@ -219,27 +219,35 @@
 
       struct LedProperties effect_config;
 
+      effect_config = readStateConfig("READY");
+
       if(enabled){
         
-           clearEffects();
+            clearEffects();
       
+            /*
+            effect_config.id = "READY";
+            effect_config.mode = "paint";
+            effect_config.color_R = 0;
+            effect_config.color_G = 255;
+            effect_config.color_B = 0;
+            effect_config.color_W = 0;
+            effect_config.start_led = 1;
+            effect_config.end_led = 400;
+            effect_config.enabled = enabled; 
+            */
+            
+            //Update the effect
+            updateEffects(effect_config);
       }
-      effect_config = readStateConfig("READY");
-      /*
-      effect_config.id = "READY";
-      effect_config.mode = "paint";
-      effect_config.color_R = 0;
-      effect_config.color_G = 255;
-      effect_config.color_B = 0;
-      effect_config.color_W = 0;
-      effect_config.start_led = 1;
-      effect_config.end_led = 400;
-      effect_config.enabled = enabled; 
-      */
-      
-      //Update the effect
-      updateEffects(effect_config);
-      
+
+    else {
+              
+       effect_config.id = "READY";
+       effect_config.mode = effect_config.mode;
+       effect_config.enabled = false; 
+       updateEffects(effect_config); 
+    }
   }
 
 
