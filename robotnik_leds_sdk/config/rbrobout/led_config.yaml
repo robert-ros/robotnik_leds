@@ -1,18 +1,18 @@
 
 led_config_list:
   
-  - led_name: "rear_right_leds"
+  - led_label: "rear_right_leds"
     leds_zone: [135, 202]
     channel: 0
     type: "RGB"
 
-  - led_name: "rear_left_leds"
+  - led_label: "rear_left_leds"
     leds_zone: [203, 270]
     channel: 0
     type: "RGB"
 
 
-  - led_name: "all_leds"
+  - led_label: "all_leds"
     leds_zone: [1, 270]
     channel: 0
     type: "RGB"
