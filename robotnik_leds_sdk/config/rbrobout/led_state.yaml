@@ -2,7 +2,7 @@
 led_state_list:
   
   - state: "EMERGENCY"
-    led_name: "all_leds"
+    led_label: "all_leds"
     mode: "blink"
     color: [255, 0, 0, 0]
     ms_on: 900
@@ -10,7 +10,7 @@ led_state_list:
 
 
   - state: "TURN_LEFT"
-    led_name: "rear_left_leds"
+    led_label: "rear_left_leds"
     mode: "shift"
     color: [0, 0, 255, 0]
     direction: "right"
@@ -19,7 +19,7 @@ led_state_list:
 
 
   - state: "TURN_RIGHT"
-    led_name: "rear_right_leds"
+    led_label: "rear_right_leds"
     mode: "shift"
     color: [0, 0, 255, 0]
     direction: "left"
@@ -28,7 +28,7 @@ led_state_list:
 
 
 #  - state: "FORWARD"
-#    led_name: "rear_right_leds"
+#    led_label: "rear_right_leds"
 #    mode: "blink"
 #    color: [0, 20, 20, 0]
 #    ms_on: 100
@@ -36,13 +36,13 @@ led_state_list:
 
 
   - state: "STOP"
-    led_name: "all_leds"
+    led_label: "all_leds"
     mode: "paint"
-    color: [102 , 0, 102, 0]
+    color: [0 , 255, 0, 0]
 
 
   - state: "MOVING"
-    led_name: "all_leds"
+    led_label: "all_leds"
     mode: "blink"
     color: [0,255,0, 0]
     ms_on: 500
