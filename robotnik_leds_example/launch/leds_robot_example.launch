@@ -13,7 +13,7 @@
 
 
 		<!-- Launch user application example-->
-		<node pkg="robotnik_leds_example" type="leds_robot_example.py" name="leds_example_node" output="screen">
+		<node pkg="robotnik_leds_example" type="leds_robot_example.py" name="leds_robot_example_node" output="screen">
 			<param name="cmd_vel" value="$(arg cmd_vel)"/>
 		</node>
 

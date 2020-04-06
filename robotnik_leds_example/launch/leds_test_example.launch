@@ -10,7 +10,7 @@
 
 
 		<!-- Launch user application example-->
-		<node pkg="robotnik_leds_example" type="leds_test_example.py" name="leds_example_node" output="screen"/>
+		<node pkg="robotnik_leds_example" type="leds_test_example.py" name="leds_test_example_node" output="screen"/>
 
 		<!-- Launch led driver -->
 		<include file="$(find robotnik_leds_sdk)/launch/leds_driver.launch">
