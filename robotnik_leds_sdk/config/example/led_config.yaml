@@ -1,11 +1,33 @@
+# Example config file
+
 led_config_list:
   
   - led_label: "all_leds"
-    leds_zone: [1,300]
+    leds_zone: [1,50]
     channel: 0
     type: "RGBW"
 
   - led_label: "front_leds"
     leds_zone: [1, 10]
+    channel: 0
+    type: "RGBW"
+
+  - led_label: "rear_leds"
+    leds_zone: [11, 20]
+    channel: 0
+    type: "RGBW"
+
+  - led_label: "left_leds"
+    leds_zone: [21, 30]
+    channel: 0
+    type: "RGBW"
+
+  - led_label: "right_leds"
+    leds_zone: [31, 40]
+    channel: 0
+    type: "RGBW"
+
+  - led_label: "central_leds"
+    leds_zone: [41, 50]
     channel: 0
     type: "RGBW"

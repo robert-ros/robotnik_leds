@@ -1,4 +1,8 @@
+# Example config file
+
 led_state_list:
+
+  # Used in leds_robot_example
    
   - state: "MOVING"
     led_label: ["all_leds"]
@@ -12,9 +16,47 @@ led_state_list:
     mode: "paint"
     color: [0, 255, 0, 0]
 
+
+  # Used in leds_test_example
+
   - state: "STATE_1"
     led_label: ["front_leds"]
     mode: "shift"
     color: [0, 0, 255, 0]
     speed: 1000
     direction: "right"
+
+  - state: "STATE_2"
+    led_label: ["rear_leds"]
+    mode: "blink"
+    color: [56, 0, 34, 23]
+    ms_on: 500
+    ms_off: 500
+
+  - state: "STATE_3"
+    led_label: ["left_leds"]
+    mode: "paint"
+    color: [0, 36, 34, 3]
+
+  - state: "STATE_4"
+    led_label: ["right_leds"]
+    mode: "shift"
+    color: [134, 0, 0, 0]
+    speed: 500
+    direction: "left"
+
+  - state: "STATE_5"
+    led_label: ["central_leds"]
+    mode: "blink"
+    color: [0, 40, 0, 0]
+    ms_on: 100
+    ms_off: 100
+
+
+    #Used in leds_simple_example
+  - state: "EMERGENCY"
+    led_label: ["all_leds"]
+    mode: "blink"
+    color: [20, 0, 0, 0]
+    ms_on: 500
+    ms_off: 500
