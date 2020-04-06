@@ -56,3 +56,38 @@ $ sudo udevadm control --reload-rules && udevadm trigger
 ```
 cd /dev && ls -l ttyLEDs
 ```
+
+## 3. Hardware setup
+
+Below is a list of the hardware you will need to get started:
+
+- Computer with Ubuntu 16.04 and ROS Kinetic
+- Teensy 3.2 board
+- RGBW led strip
+- Wires
+
+
+## 4. Usage
+
+1. Connect the ALS module to the USB port of the computer. All the leds should start to blink white, this means that the ALS module has started.
+
+2. In a terminal, launch the driver. All the LEDs will turn green when the driver has finished loading. This means that the driver is ready to accept commands.
+
+```
+$ roslaunch robotnik_leds_sdk leds_driver.launch robot_name:=example
+```
+
+3. In another terminal, send a command to the ALS module. All LEDs will blink green at 1 Hz.
+
+```
+$ rosservice call /led_command_interface/command "state: 'MOVING' enable: true"
+```
+
+To erase the effect on the strip, disable it.
+
+```
+$ rosservice call /led_command_interface/command "state: 'MOVING' enable: false"
+```
+
+4. To close the driver, just do CTRL + C. All the LEDs will light up blue. This means that the driver has ended. If the driver is launched again the LEDs will light up green waiting for a command
+
