@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
-from geometry_msgs.msg import Twist
-from robotnik_leds_sdk.srv import SetLeds, SetLedsRequest
+from robotnik_leds_msgs.srv import SetLeds, SetLedsRequest
 
 
 class LedsControl:
@@ -14,22 +13,70 @@ class LedsControl:
 
 		rospy.loginfo("Starting example...")		
 
-        # Check if ALS module is already
-		rospy.wait_for_service('leds_driver/command')
+        # Check if ALS driver is already
+		rospy.wait_for_service('led_command_interface/command')
 
 		rospy.loginfo("Running example!")
 
 
-	def sendCommands(self):
-		
-		rospy.sleep(1)
+	def setEffect(self):
 
 		command = SetLedsRequest()
-		rospy.wait_for_service('leds_driver/command')
-		leds_driver_client = rospy.ServiceProxy('leds_driver/command', SetLeds)
+		rospy.wait_for_service('led_command_interface/command')
+		leds_driver_client = rospy.ServiceProxy('led_command_interface/command', SetLeds)
 
 		command.state = "STATE_1"
 		command.enable = True
+		leds_driver_client(command)
+
+		rospy.sleep(1)
+		command.state = "STATE_2"
+		command.enable = True
+		leds_driver_client(command)
+
+		rospy.sleep(1)
+		command.state = "STATE_3"
+		command.enable = True
+		leds_driver_client(command)
+
+		rospy.sleep(1)	
+		command.state = "STATE_4"
+		command.enable = True
+		leds_driver_client(command)
+
+		rospy.sleep(1)
+		command.state = "STATE_5"
+		command.enable = True
+		leds_driver_client(command)
+
+	def clearEffect(self):
+
+		command = SetLedsRequest()
+		rospy.wait_for_service('led_command_interface/command')
+		leds_driver_client = rospy.ServiceProxy('led_command_interface/command', SetLeds)
+
+		command.state = "STATE_3"
+		command.enable = False
+		leds_driver_client(command)
+
+		rospy.sleep(1)
+		command.state = "STATE_5"
+		command.enable = False
+		leds_driver_client(command)
+
+		rospy.sleep(1)
+		command.state = "STATE_1"
+		command.enable = False
+		leds_driver_client(command)
+
+		rospy.sleep(1)	
+		command.state = "STATE_4"
+		command.enable = False
+		leds_driver_client(command)
+
+		rospy.sleep(1)
+		command.state = "STATE_2"
+		command.enable = False
 		leds_driver_client(command)
 		
 
@@ -37,13 +84,12 @@ def main():
 
 	leds_control = LedsControl()
 
-	leds_control.sendCommands()
-
-
 	while not rospy.is_shutdown():
 
-		dummy = 1        
-
+		leds_control.setEffect()
+		rospy.sleep(5)
+		leds_control.clearEffect()
+		rospy.sleep(1)
 
 
 if __name__ == '__main__':

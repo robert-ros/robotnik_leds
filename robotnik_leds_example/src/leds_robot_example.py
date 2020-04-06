@@ -2,7 +2,7 @@
 
 import rospy
 from geometry_msgs.msg import Twist
-from robotnik_leds_sdk.srv import SetLeds, SetLedsRequest
+from robotnik_leds_msgs.srv import SetLeds, SetLedsRequest
 
 
 class LedsControl:
@@ -24,7 +24,7 @@ class LedsControl:
 		rospy.loginfo("Starting example...")		
 
         # Check if ALS module is already
-		rospy.wait_for_service('leds_driver/command')
+		rospy.wait_for_service('led_command_interface/command')
 
 		rospy.loginfo("Running example!")
 
@@ -32,15 +32,15 @@ class LedsControl:
 	def cmd_vel_callaback(self, msg):
 
 		command = SetLedsRequest()
-		rospy.wait_for_service('leds_driver/command')
-		leds_driver_client = rospy.ServiceProxy('leds_driver/command', SetLeds)
+		rospy.wait_for_service('led_command_interface/command')
+		leds_driver_client = rospy.ServiceProxy('led_command_interface/command', SetLeds)
 
 		vel_x = msg.linear.x
 		vel_y = msg.linear.y
 		vel_z = msg.angular.z
 
 
-		if vel_x <= 0.01 and vel_x >= -0.01 and vel_y <= 0.01 and vel_y >= -0.01 and vel_z <= 0.01 and vel_z >= -0.01:
+		if vel_x <= 0.2 and vel_x >= -0.2 and vel_y <= 0.2 and vel_y >= -0.2 and vel_z <= 0.2 and vel_z >= -0.2:
 
 			#Important: First disable effects, then activate effects
 			

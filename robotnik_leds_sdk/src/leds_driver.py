@@ -4,8 +4,8 @@
 import rospy
 from std_msgs.msg import String
 from std_srvs.srv import Trigger
-from robotnik_leds_sdk.srv import SetLeds, SetLedsResponse
-from robotnik_leds_sdk.srv import LedEffects, LedEffectsRequest, LedEffectsResponse
+from robotnik_leds_msgs.srv import SetLeds, SetLedsResponse
+from robotnik_leds_msgs.srv import LedEffects, LedEffectsRequest, LedEffectsResponse
 
 
 class LedsDriver:
@@ -27,7 +27,7 @@ class LedsDriver:
         self.leds_driver_effect_service = rospy.ServiceProxy('arduino_led_signaling/set_led_properties', LedEffects)
 
         # Init service server
-        leds_service = rospy.Service('leds_driver/command', SetLeds, self.leds_service_callback)
+        leds_service = rospy.Service('led_command_interface/command', SetLeds, self.leds_service_callback)
 
         #Get name of this node
         self.node_name = rospy.get_name()
