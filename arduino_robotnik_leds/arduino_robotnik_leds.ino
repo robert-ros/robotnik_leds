@@ -77,15 +77,15 @@
 #include "CommonEffect.h"
 #include "LedEffects.h"
 
-#include <robotnik_leds_sdk/LedEffects.h>
-#include <robotnik_leds_sdk/LedConfig.h>
-#include <robotnik_leds_sdk/LedReset.h>
+#include <robotnik_leds_msgs/LedEffects.h>
+#include <robotnik_leds_msgs/LedConfig.h>
+#include <robotnik_leds_msgs/LedReset.h>
 #include <std_srvs/Trigger.h>
 
 ros::NodeHandle  nh;
 //using robotnik_leds_sdk::LedEffects;
-using robotnik_leds_sdk::LedConfig;
-using robotnik_leds_sdk::LedReset;
+using robotnik_leds_msgs::LedConfig;
+using robotnik_leds_msgs::LedReset;
 using std_srvs::Trigger;
 
 
@@ -118,7 +118,7 @@ void clear_led_effects(){
 }
 
 
-void callback_led_effects(const robotnik_leds_sdk::LedEffects::Request & req, robotnik_leds_sdk::LedEffects::Response & res){
+void callback_led_effects(const robotnik_leds_msgs::LedEffects::Request & req, robotnik_leds_msgs::LedEffects::Response & res){
 
   led_effects.timeoutACK = 0;
    
@@ -141,7 +141,7 @@ void callback_led_effects(const robotnik_leds_sdk::LedEffects::Request & req, ro
   effect_config.direction = req.direction;
   effect_config.speed = req.speed;
   effect_config.sleep = req.sleep;
-  effect_config.led_increment = 3;
+  effect_config.led_increment = 1;
   effect_config.enabled = req.enabled;
 
 
@@ -214,7 +214,7 @@ void callback_config(const LedConfig::Request & req, LedConfig::Response & res){
     device_config.ms_off = req.ms_off;
     device_config.direction = req.direction;
     device_config.speed = req.speed;
-    device_config.led_increment = 3;
+    device_config.led_increment = 1;
     
     led_effects.configDevice(password, device_config, state).toCharArray(message, 300);
 
@@ -266,7 +266,7 @@ void callback_reset(const LedReset::Request & req, LedReset::Response & res){
 */
 
 
-ros::ServiceServer<robotnik_leds_sdk::LedEffects::Request, robotnik_leds_sdk::LedEffects::Response> server_led_effects("arduino_led_signaling/set_led_properties",&callback_led_effects);
+ros::ServiceServer<robotnik_leds_msgs::LedEffects::Request, robotnik_leds_msgs::LedEffects::Response> server_led_effects("arduino_led_signaling/set_led_properties",&callback_led_effects);
 ros::ServiceServer<Trigger::Request, Trigger::Response> server_clear_leds("arduino_led_signaling/clear_effects",&callback_clear);
 ros::ServiceServer<Trigger::Request, Trigger::Response> server_list_id("arduino_led_signaling/list_id",&callback_list_id);
 ros::ServiceServer<LedConfig::Request, LedConfig::Response> server_config("arduino_led_signaling/config/default_states",&callback_config);
