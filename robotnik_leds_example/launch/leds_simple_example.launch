@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+		
+<launch>
+
+		<!-- Arguments for led driver -->
+		<arg name = "robot_name"     default = "example"/>
+		<arg name = "port_name"		 default = "/dev/ttyLEDs"/>
+
+
+		<!-- Launch user application example-->
+		<node pkg="robotnik_leds_example" type="leds_simple_example.py" name="leds_simple_example_node" output="screen"/>
+
+		<!-- Launch led driver -->
+		<include file="$(find robotnik_leds_sdk)/launch/leds_driver.launch">
+			<arg name="robot_name" value="$(arg robot_name)"/>
+			<arg name="port_name" value="$(arg port_name)"/>
+		</include>
+	
+</launch>
