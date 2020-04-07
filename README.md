@@ -91,3 +91,42 @@ $ rosservice call /led_command_interface/command "state: 'MOVING' enable: false"
 
 4. To close the driver, just do CTRL + C. All the LEDs will light up blue. This means that the driver has ended. If the driver is launched again the LEDs will light up green waiting for a command
 
+
+
+## 4. Examples
+
+In the robotnik leds example folder you can find several examples ready to test. 
+
+### 4.1 Example of led effects
+
+Connect ALS module via USB to computer and launch the example
+
+```
+$ roslaunch robotnik_leds_example leds_test_example.launch
+```
+
+Different effects will appear on the led strip, then they will be gradually erased. This process continues in an infinite loop. If the program ends, the LEDs will light blue.
+
+### 4.2 Example of leds on a robot
+
+This example needs a real or simulated robot. The robot rb2 from the manufacturer Robotnik Automation will be used in Gazebo.Follow the next steps to install the robot https://github.com/RobotnikAutomation/rb2_sim
+
+Launch the robot, in this case
+
+```
+$ roslaunch rb2_sim_bringup rb2_complete.launch
+```
+
+Launch the example. Specify the topic where the robot speed is published, in this case
+
+```
+$ roslaunch robotnik_leds_example leds_robot_example.launch cmd_vel:=/robot/robotnik_base_control/cmd_vel
+```
+
+In another terminal, control the robot
+
+```
+$ rosrun teleop_twist_keyboard teleop_twist_keyboard.py cmd_vel:=/robot/robotnik_base_control/cmd_vel
+```
+
+When you move the robot, the LEDs will blink green. If the robot stops, the LEDs will light up green
