@@ -21,10 +21,12 @@ class LedsDriver:
         # Wait for the service offered by the Arduino hardware
         rospy.wait_for_service('arduino_led_signaling/ack')
         rospy.wait_for_service('arduino_led_signaling/set_led_properties')
+        rospy.wait_for_service('arduino_led_signaling/update_led_properties')
 
         # Connect to the service offered by the Arduino hardware
         self.leds_driver_ack_service   = rospy.ServiceProxy('arduino_led_signaling/ack', Trigger)
-        self.leds_driver_effect_service = rospy.ServiceProxy('arduino_led_signaling/set_led_properties', LedEffects)
+        self.leds_driver_set_effect_service = rospy.ServiceProxy('arduino_led_signaling/set_led_properties', LedEffects)
+        self.leds_driver_update_effect_service = rospy.ServiceProxy('arduino_led_signaling/update_led_properties', Trigger)
 
         # Init service server
         leds_service = rospy.Service('led_command_interface/command', SetLeds, self.leds_service_callback)
@@ -85,14 +87,16 @@ class LedsDriver:
             led_effect_config.sleep = state_config.get("sleep")
 
 
-
-
-        response = self.leds_driver_effect_service (led_effect_config)
+        response = self.leds_driver_set_effect_service (led_effect_config)
 
         return response
 
 
 
+    def arduino_update_led_signaling(self):
+
+        self.leds_driver_update_effect_service()
+        
 
     def get_config_params(self, led_label_req):
 
@@ -217,6 +221,9 @@ class LedsDriver:
                 res.success = True
                 res.message = "Error: led_label or state_name does not exist"
 
+
+        # Update the configuration to ALS device
+        self.arduino_update_led_signaling()
 
         return res
 
