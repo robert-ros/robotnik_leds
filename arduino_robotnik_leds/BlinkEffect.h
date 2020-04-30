@@ -13,11 +13,12 @@
 
       /* Auxiliar global variables */
       bool isOn = false;         //Indica si el el led debe estar encendido o apagado
-      elapsedMillis blink_time;  //Tiempo transcurrido entre un intervalo
+      //elapsedMillis blink_time;  //Tiempo transcurrido entre un intervalo
+      float blink_time = 0;
       
     public:
     
-      BlinkEffect(Adafruit_NeoPixel &pixels);  
+      BlinkEffect(WS2812Serial &pixels);  
       void run(void);
       
   };

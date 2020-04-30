@@ -4,7 +4,7 @@
   #include "PaintEffect.h"
 
 
-  PaintEffect::PaintEffect(Adafruit_NeoPixel &pixels):
+  PaintEffect::PaintEffect(WS2812Serial &pixels):
         CommonEffect(pixels){}
 
 

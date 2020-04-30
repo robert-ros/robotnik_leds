@@ -11,13 +11,13 @@
     private:
 
       /* Auxiliar global variables */
-      elapsedMicros shift_time;
+      //elapsedMicros shift_time;
+      float shift_time = 0;
       int count_pixel = 0; 
       uint8_t shift_state = 0;
       uint16_t shift_pixels;
       float shift_time_ms = 0;
       float speed_per_pixel = 0;
-      float shift_time_compensation=0;
 
       int led_counter = 0;   
       enum state_machine {WAIT_FINAL_LED_ON,  WAIT_FINAL_LED_OFF};
@@ -26,7 +26,7 @@
       
     public:
     
-      ShiftEffect(Adafruit_NeoPixel &pixels);
+      ShiftEffect(WS2812Serial &pixels);
 
       uint8_t shift_mode( struct leds_shift shift_config);
       void run(void);

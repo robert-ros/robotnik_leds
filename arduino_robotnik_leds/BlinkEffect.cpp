@@ -2,7 +2,7 @@
   #include "BlinkEffect.h"
 
 
-  BlinkEffect::BlinkEffect(Adafruit_NeoPixel &pixels):
+  BlinkEffect::BlinkEffect(WS2812Serial &pixels):
         CommonEffect(pixels){}
         
 
@@ -24,6 +24,9 @@
 
       if(enabled){
 
+          ms_on = roundToRefreshTime(ms_on);
+          ms_off = roundToRefreshTime(ms_off);
+
            
           if(firstTime()){
             
@@ -34,6 +37,7 @@
           if(blink_time < ms_off && isOn){
 
               showFillPixels(color_R,color_G,color_B, color_W, start_led, end_led);
+              Serial.println("on");
               isOn = false;
            }
     
@@ -41,6 +45,7 @@
            else if (blink_time >= ms_on && blink_time <= ms_on+ms_off && !isOn){
     
               showFillPixels(0,0,0,0,  start_led, end_led);
+              Serial.println("off");
               isOn = true;
             }
 
@@ -51,6 +56,7 @@
             } 
 
           
+          blink_time = blink_time + (COMMON_EFFECT_REFRESH_TIME);
       }
     
   }

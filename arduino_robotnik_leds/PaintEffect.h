@@ -11,7 +11,7 @@
    
     public:
 
-      PaintEffect(Adafruit_NeoPixel &pixels);
+      PaintEffect(WS2812Serial &pixels);
       void run(void);
  
   };
