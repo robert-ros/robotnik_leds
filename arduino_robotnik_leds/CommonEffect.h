@@ -3,11 +3,13 @@
   #define _COMMON_EFFECT_H_
   
   #include <Arduino.h>
-  #include <Adafruit_NeoPixel.h>
-
+  //#include <Adafruit_NeoPixel.h>
+  #include <WS2812Serial.h>
 
   // General properties used by all led effects
- 
+
+  #define COMMON_EFFECT_REFRESH_TIME 20 // 20 ms
+
   struct LedProperties{
 
   LedProperties(): 
@@ -58,10 +60,10 @@
         
     public:
 
-        Adafruit_NeoPixel *pixels;
+        WS2812Serial *pixels;
 
 
-        CommonEffect(Adafruit_NeoPixel &pixels);
+        CommonEffect(WS2812Serial &pixels);
 
   
         struct LedProperties effect_config;
@@ -85,7 +87,10 @@
         void resetEffectConfig (void);
         void cleanCurrentLedZone(void);
         void removeEffect(void);
+
+        /* Functions utils for effects */
         bool firstTime(void);
+        int roundToRefreshTime(float speed_decimal);
   };
 
  #endif

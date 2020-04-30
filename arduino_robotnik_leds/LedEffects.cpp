@@ -6,7 +6,7 @@
 
   
   
-  LedEffects::LedEffects(Adafruit_NeoPixel &pixels) {
+  LedEffects::LedEffects(WS2812Serial &pixels) {
 
 
      for(int i = 0; i < NUM_EFFECTS; i++){ 
@@ -161,8 +161,41 @@
  
   }
   
+  void LedEffects::saveBufferEffects(struct LedProperties effect_config){
+
+   
+
+    if(index_buffer_effects < TOTAL_EFFECTS){
+      
+        buffer_effects[index_buffer_effects] = effect_config;
+        index_buffer_effects++;
+        
+    }
+    
+  }
+
+  void LedEffects::enableUpdateEffects(){
+    
+      isUpdateEffectsEnabled = true;
+   }
 
 
+  void LedEffects::updatePendingEffects(){
+
+    if(isUpdateEffectsEnabled){
+
+        for(int i = 0; i < index_buffer_effects; i++){
+          
+            updateEffects(buffer_effects[i]);
+        
+        }
+    
+        index_buffer_effects = 0;
+        isUpdateEffectsEnabled = false;
+    }
+    
+  }
+  
 
   void LedEffects::updateEffects(struct LedProperties effect_config){
 
@@ -303,6 +336,9 @@
   
 
   void LedEffects::runEffects(void){
+
+    /* Añadido para debug */
+    state = 777;
 
     switch(state){
       

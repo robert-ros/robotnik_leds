@@ -3,7 +3,9 @@
   #ifndef _LED_EFFECTS_H_
   #define _LED_EFFECTS_H_
 
-  #define NUM_EFFECTS 5
+  #define NUM_EFFECTS 10 // Number of effects for each mode
+  #define TYPE_EFFECTS 3 // Number of effects modes (paint, blink, shift)
+  #define TOTAL_EFFECTS NUM_EFFECTS*TYPE_EFFECTS // Total number of effects
   
   #include <Arduino.h>
 
@@ -28,9 +30,14 @@
       BlinkEffect *blink_effect[NUM_EFFECTS];
       ShiftEffect *shift_effect[NUM_EFFECTS];
 
+      struct LedProperties buffer_effects[TOTAL_EFFECTS];
+      int index_buffer_effects = 0;
+      bool isUpdateEffectsEnabled = false;
+
       enum resources {CREATE, EDIT, REMOVE, BOOTING, READY, RUNNING, FAULT, EXIT, WAITING_ROS, WAITING_FIRST_COMMAND};
 
-      int checkEffect(struct LedProperties effect_config); 
+      void updateEffects(struct LedProperties effect_config);
+      int  checkEffect(struct LedProperties effect_config); 
       void createEffect(struct LedProperties effect_config); 
       void editEffect(struct LedProperties effect_config); 
       void removeEffect(struct LedProperties effect_config); 
@@ -47,9 +54,11 @@
    
     public:
 
-      LedEffects(Adafruit_NeoPixel &pixels);
-      
-      void updateEffects(struct LedProperties effect_config);
+      LedEffects(WS2812Serial &pixels);
+
+      void saveBufferEffects(struct LedProperties effect_config);
+      void enableUpdateEffects();
+      void updatePendingEffects();
       void runEffects(void);
       void clearEffects(void);
       String listID(void);

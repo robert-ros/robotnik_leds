@@ -3,7 +3,7 @@
   #include "CommonEffect.h"
 
   
-  CommonEffect::CommonEffect(Adafruit_NeoPixel &pixels) {
+  CommonEffect::CommonEffect(WS2812Serial &pixels) {
 
      this->pixels = &pixels;
       
@@ -13,7 +13,14 @@
 
   void CommonEffect::fillPixels(int color_R, int color_G, int color_B, int color_W, int start_led, int count_led ) {
 
-        pixels->fill(pixels->Color(color_G, color_R, color_B,  color_W), start_led, count_led);
+        //pixels->fill(pixels->Color(color_G, color_R, color_B,  color_W), start_led, count_led);
+
+      for(int i = start_led; i <= start_led-1+count_led; i++){
+        
+        pixels->setPixelColor(i, pixels->Color(color_G, color_R, color_B, color_W));  
+        
+      }
+
             
   }
 
@@ -41,8 +48,15 @@
        //Example: start_led = 2, end_led =  4  There are 4-2+1 = 3 pixels involved
       int count_led =  end_led - start_led + 1; 
       
-      pixels->fill(pixels->Color(color_G, color_R, color_B, color_W), start_led - 1, count_led);
-      pixels->show();
+      //pixels->fill(pixels->Color(color_G, color_R, color_B, color_W), start_led - 1, count_led);
+
+      for(int i = start_led-1; i <= end_led-1; i++){
+        
+        pixels->setPixelColor(i, pixels->Color(color_G, color_R, color_B, color_W));  
+        
+      }
+      
+      //pixels->show();
       
   }
 
@@ -201,5 +215,44 @@
    
     return result;
    }
+
+
+  int CommonEffect::roundToRefreshTime(float speed_decimal){
+    
+    // Find a multiple of COMMON_EFFECT_REFRESH_TIME and round it
+
+    int speed_rounded = 0;
+    int remainder = 0;
+    int inverse_remainder = 0;
+    int refresh_time = COMMON_EFFECT_REFRESH_TIME;
+    int speed = int(speed_decimal);
+
+    remainder = speed % refresh_time;
+
+    // If remainder is lower than 60% of refresh_time, rounds up
+    if(remainder < refresh_time*0.6){
+
+        speed_rounded = speed - remainder;
+    }
+
+    // Else, rounds down
+    else{
+
+        inverse_remainder = refresh_time - remainder;
+        speed_rounded = int(speed + inverse_remainder);
+    }
+
+
+    // If speed_rounded has been rounded to zero, then it is assigned the minimum possible value, that is, refresh_time
+
+    if(speed_rounded <= 0){
+
+          speed_rounded = refresh_time;
+    }
+
+    return speed_rounded;
+    
+    
+  }
 
   
