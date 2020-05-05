@@ -39,6 +39,12 @@
   uint16_t end_led;
   uint16_t ms_on = 0;
   uint16_t ms_off = 0;
+  uint16_t fade_in = 0;
+  uint16_t fade_out = 0;
+  uint8_t  background_R = 0;
+  uint8_t  background_G = 0;
+  uint8_t  background_B = 0;
+  uint8_t  background_W = 0;
   String   direction = "right";
   uint16_t speed = 0;
   uint16_t sleep = 0;
