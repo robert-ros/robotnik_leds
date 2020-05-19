@@ -63,7 +63,7 @@
 
 
       if(enabled){
-        Serial.println(led_increment);
+       
         if(firstTime()){
           
           last_led = start_led;
@@ -78,7 +78,7 @@
           else
             led_counter = end_led;
           
-          Serial2.println(led_counter);
+          //Serial2.println(led_counter);
         }
 
        
