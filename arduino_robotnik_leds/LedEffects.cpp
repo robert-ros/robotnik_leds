@@ -226,20 +226,20 @@
       clearEffects();
 
       struct LedProperties effect_config;
-      effect_config = readStateConfig("BOOTING");
-/*    
+      //effect_config = readStateConfig("BOOTING"); // -----------------------
+
       effect_config.id = "BOOTING";
       effect_config.mode = "blink";
-      effect_config.color_R = 20;
-      effect_config.color_G = 20;
-      effect_config.color_B = 20;
+      effect_config.color_R = 100;
+      effect_config.color_G = 100;
+      effect_config.color_B = 100;
       effect_config.color_W = 0;
       effect_config.start_led = 1;
       effect_config.end_led = 400;
       effect_config.ms_on = 500;
       effect_config.ms_off = 500;
       effect_config.enabled = true; 
-*/
+
 
       //Update the effect
       updateEffects(effect_config);
@@ -252,34 +252,41 @@
 
       struct LedProperties effect_config;
 
-      effect_config = readStateConfig("READY");
+      //effect_config = readStateConfig("READY"); // -----------------------------
 
       if(enabled){
         
             clearEffects();
       
-            /*
+            
             effect_config.id = "READY";
             effect_config.mode = "paint";
             effect_config.color_R = 0;
-            effect_config.color_G = 255;
+            effect_config.color_G = 255; // 20
             effect_config.color_B = 0;
             effect_config.color_W = 0;
             effect_config.start_led = 1;
-            effect_config.end_led = 400;
+            effect_config.end_led = 450;
             effect_config.enabled = enabled; 
-            */
+            
             
             //Update the effect
-            updateEffects(effect_config);
+            updateEffects(effect_config); 
       }
 
     else {
-              
+       // Uncomment if readStateConfig IS used
+       /*       
        effect_config.id = "READY";
        effect_config.mode = effect_config.mode;
        effect_config.enabled = false; 
-       updateEffects(effect_config); 
+       updateEffects(effect_config);
+       */
+      // Delete if readStateConfig IS used
+      effect_config.id = "READY";
+      effect_config.mode = "paint";
+      effect_config.enabled = false; 
+      updateEffects(effect_config); 
     }
   }
 
@@ -290,18 +297,18 @@
 
       struct LedProperties effect_config;
 
-      effect_config = readStateConfig("EXIT");
-/*      
+      //effect_config = readStateConfig("EXIT"); --------------------------------
+      
       effect_config.id = "EXIT";
       effect_config.mode = "paint";
       effect_config.color_R = 0;
       effect_config.color_G = 0;
-      effect_config.color_B = 20;
+      effect_config.color_B = 255; // 20
       effect_config.color_W = 0;
       effect_config.start_led = 1;
-      effect_config.end_led = 400;
+      effect_config.end_led = 450;
       effect_config.enabled = true; 
-*/
+
       //Update the effect
        updateEffects(effect_config);
     
@@ -338,7 +345,7 @@
   void LedEffects::runEffects(void){
 
     /* Añadido para debug */
-    state = 777;
+    //state = 777;
 
     switch(state){
       
