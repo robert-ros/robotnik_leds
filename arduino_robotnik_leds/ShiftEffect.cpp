@@ -63,11 +63,22 @@
 
 
       if(enabled){
-
+        Serial.println(led_increment);
         if(firstTime()){
           
           last_led = start_led;
           shift_time = 0;
+
+          //Paint background
+          fillPixels(background_R, background_G, background_B, background_W , start_led , end_led);
+
+          // This fixes bug zone, to do: find the real cause
+          if (direction.equals("right"))
+            led_counter = start_led;
+          else
+            led_counter = end_led;
+          
+          Serial2.println(led_counter);
         }
 
        
@@ -86,9 +97,9 @@
                     
                      state = RESET_LEDS;    
                      shift_time = 0;  // Reset time                 
-                     tic = millis();
-                     Serial.println(toc-tic);
-                     toc = millis();
+                     //tic = millis();
+                     //Serial.println(toc-tic);
+                     //toc = millis();
               }
 
 
