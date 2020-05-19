@@ -10,9 +10,16 @@ uint16  start_led
 uint16  end_led
 uint16  ms_on
 uint16  ms_off
+uint16  fade_in
+uint16  fade_out
+uint8   background_R = 0
+uint8   background_G = 0
+uint8   background_B = 0
+uint8   background_W = 0
 string  direction
 uint16  speed
 uint16  sleep
+uint16  led_increment
 bool    enabled
 ---
 uint8  state
