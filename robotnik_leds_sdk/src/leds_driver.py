@@ -72,6 +72,36 @@ class LedsDriver:
             led_effect_config.ms_off = state_config.get("ms_off")
 
 
+        if state_config.get("fade_in") is not None:
+
+            led_effect_config.fade_in = state_config.get("fade_in")
+
+
+        if state_config.get("fade_out") is not None:
+
+            led_effect_config.fade_out = state_config.get("fade_out")
+
+
+
+        if state_config.get("background_R") is not None:
+
+            led_effect_config.background_R = state_config.get("background_R")
+
+        if state_config.get("background_G") is not None:
+
+            led_effect_config.background_G = state_config.get("background_G")
+
+        if state_config.get("background_B") is not None:
+
+            led_effect_config.background_B = state_config.get("background_B")
+
+        if state_config.get("background_W") is not None:
+
+            led_effect_config.background_W = state_config.get("background_W")
+
+
+
+
         if state_config.get("direction") is not None:  
 
             led_effect_config.direction = state_config.get("direction")
@@ -82,9 +112,17 @@ class LedsDriver:
             led_effect_config.speed = state_config.get("speed")
 
 
-        if state_config.get("sleep")is not None:
+        if state_config.get("sleep") is not None:
 
             led_effect_config.sleep = state_config.get("sleep")
+
+
+        if state_config.get("led_increment") is not None:
+
+            led_effect_config.led_increment = state_config.get("led_increment")
+        else:
+            led_effect_config.led_increment = 1
+
 
 
         response = self.leds_driver_set_effect_service (led_effect_config)
