@@ -10,12 +10,24 @@
   }
 
 
-
+/*
   void CommonEffect::fillPixels(int color_R, int color_G, int color_B, int color_W, int start_led, int count_led ) {
 
         //pixels->fill(pixels->Color(color_G, color_R, color_B,  color_W), start_led, count_led);
 
       for(int i = start_led; i <= start_led-1+count_led; i++){
+        
+        pixels->setPixelColor(i, pixels->Color(color_G, color_R, color_B, color_W));  
+        
+      }
+
+            
+  }
+*/
+
+  void CommonEffect::fillPixels(int color_R, int color_G, int color_B, int color_W, int start_led, int end_led ) {
+
+      for(int i = start_led-1; i <= end_led-1; i++){
         
         pixels->setPixelColor(i, pixels->Color(color_G, color_R, color_B, color_W));  
         
