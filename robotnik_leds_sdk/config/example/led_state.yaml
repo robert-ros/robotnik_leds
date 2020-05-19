@@ -8,8 +8,8 @@ led_state_list:
     led_label: ["all_leds"]
     mode: "blink"
     color: [0, 255, 0, 0]
-    ms_on: 1000
-    ms_off: 1000
+    ms_on: 12000
+    ms_off: 12000
 
   - state: "STOP"
     led_label: ["all_leds"]
@@ -27,7 +27,7 @@ led_state_list:
     direction: "right"
 
   - state: "STATE_2"
-    led_label: ["rear_leds"]
+    led_label: ["rear_leds", "front_leds"]
     mode: "blink"
     color: [56, 0, 34, 23]
     ms_on: 500
@@ -60,3 +60,85 @@ led_state_list:
     color: [20, 0, 0, 0]
     ms_on: 500
     ms_off: 500
+
+
+
+
+
+  - state: "TEST_1"
+    led_label: ["test_1", "test_2"]
+    mode: "blink"
+    color: [0, 0, 50, 0]
+    ms_on: 400
+    ms_off: 400
+
+  - state: "TEST_2"
+    led_label: ["test_2"]
+    mode: "blink"
+    color: [0, 0, 50, 0]
+    ms_on: 1000
+    ms_off: 200
+    fade_in: 500
+    fade_out: 500
+
+  - state: "TEST_3"
+    led_label: ["test_3", "test_4", "test_5", "test_6", "test_7"]
+    mode: "shift"
+    color: [0, 50, 0, 0]
+    speed: 400
+    direction: "right"
+
+  - state: "TEST_4"
+    led_label: ["test_4"]
+    mode: "shift"
+    color: [0, 50, 0, 0]
+    speed: 400
+    direction: "left"
+
+  - state: "TEST_5"
+    led_label: ["test_5"]
+    mode: "shift"
+    color: [0, 50, 0, 0]
+    speed: 400
+    direction: "right"
+
+
+  - state: "TEST_6"
+    led_label: ["test_6"]
+    mode: "shift"
+    color: [0, 50, 0, 0]
+    speed: 400
+    direction: "left"
+
+  - state: "TEST_7"
+    led_label: ["test_7"]
+    mode: "shift"
+    color: [0, 50, 0, 0]
+    speed: 400
+    direction: "right"
+
+
+
+
+  - state: "DEBUG_1"
+    led_label: ["debug_1"]
+    mode: "shift"
+    color: [0, 50, 0, 0]
+    speed: 1000
+    direction: "right"
+
+
+
+  - state: "DEBUG_2"
+    led_label: ["debug_2"]
+    mode: "shift"
+    color: [0, 50, 0, 0]
+    speed: 1000
+    direction: "left"
+
+
+
+
+
+
+

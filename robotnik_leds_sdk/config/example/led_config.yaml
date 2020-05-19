@@ -1,5 +1,5 @@
 # Example config file
-
+ 
 led_config_list:
   
   - led_label: "all_leds"
@@ -31,3 +31,59 @@ led_config_list:
     leds_zone: [41, 50]
     channel: 0
     type: "RGBW"
+
+
+
+
+
+
+  - led_label: "test_1"
+    leds_zone: [71,90]
+    channel: 0
+    type: "RGBW"
+
+  - led_label: "test_2"
+    leds_zone: [91, 110]
+    channel: 0
+    type: "RGBW"
+
+  - led_label: "test_3"
+    leds_zone: [22, 30]
+    channel: 0
+    type: "RGBW"
+
+  - led_label: "test_4"
+    leds_zone: [32, 40]
+    channel: 0
+    type: "RGBW"
+
+  - led_label: "test_5"
+    leds_zone: [43, 51]
+    channel: 0
+    type: "RGBW"
+
+  - led_label: "test_6"
+    leds_zone: [52, 60]
+    channel: 0
+    type: "RGBW"
+
+  - led_label: "test_7"
+    leds_zone: [62, 70]
+    channel: 0
+    type: "RGBW"
+
+
+  - led_label: "debug_1"
+    leds_zone: [1, 9]
+    channel: 0
+    type: "RGBW"
+
+  - led_label: "debug_2"
+    leds_zone: [10, 58]
+    channel: 0
+    type: "RGBW"
+
+
+
+
+
