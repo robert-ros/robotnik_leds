@@ -106,49 +106,73 @@ def calculateAvailableIntervals():
                     "intervals if you want to achieve a real time of " 
                          + str(desiredSpeed) + " ms in shift effect:" +  '\n' + '\n')
         
+    findAnyResult = False
 
     for led in range(start_led, end_led+1):
 
-        result = findSpeed(start_led, led, led_increment, desiredSpeed)
+        result = findRealTime(start_led, led, led_increment, desiredSpeed)
 
         if result == desiredSpeed:
-
+            findAnyResult = True
             text.insert(END, "[" + str(start_led) +  ", " + str(led) + "]" + '\n')
 
+    if not findAnyResult:
 
-def findRealTime(start_led, end_led, led_increment, speed):
+        text.insert(END, "No combination reaches the desired time" + '\n' + 
+        "Consider modifying the conditions" + '\n')
+
+def roundToRefreshTime(speed_decimal):
 
     global refresh_time
     speed_rounded = 0
+    speed = int(speed_decimal)
 
-    number_of_leds = end_led - start_led + 1
+    remainder = speed % refresh_time
 
+    # Round up
+    if(remainder < refresh_time*0.6):
 
-    number_of_leds = math.ceil(number_of_leds/led_increment)
-
-    # When all leds turn off to repeat the secuence. This is a new extra led 
-    number_of_leds_in_system = number_of_leds + 1
-
-    speed_per_pixel = speed / number_of_leds_in_system   
-
-    remainder = speed_per_pixel % refresh_time
-    print(remainder)
-    if remainder < refresh_time*0.6:
-
-        speed_rounded_per_pixel = speed_per_pixel - remainder
+        speed_rounded = speed - remainder
     
+
+    # Else, rounds down
     else:
+
         inverse_remainder = refresh_time - remainder
-        speed_rounded_per_pixel = int(speed_per_pixel + inverse_remainder)
+        speed_rounded = int(speed + inverse_remainder)
+    
 
 
-    if speed_rounded_per_pixel <= 0:
+    #If speed_rounded has been rounded to zero, then it is assigned the minimum possible value, 
+    # that is, refresh_time
 
-          speed_rounded_per_pixel = refresh_time
+    if(speed_rounded <= 0):
 
-    speed_rounded = speed_rounded_per_pixel * number_of_leds_in_system
+          speed_rounded = refresh_time
+    
 
     return speed_rounded
+    
+    
+
+def findRealTime(start_led, end_led, led_increment, speed):
+
+    global refresh_time 
+ 
+    number_of_leds = end_led - start_led +1
+   
+    number_of_leds_in_system = math.ceil(number_of_leds/led_increment)
+    
+    speed_per_led_raw = speed / number_of_leds_in_system
+
+    
+    real_speed_per_led = roundToRefreshTime(speed_per_led_raw)
+
+    real_speed = real_speed_per_led * number_of_leds_in_system
+
+    return real_speed
+
+
 
 
 def calculateRealTime():
