@@ -48,7 +48,7 @@
   String   direction = "right";
   uint16_t speed = 0;
   uint16_t sleep = 0;
-  uint16_t led_increment=0;
+  uint16_t led_increment=1;
   bool     enabled;
   
   };
