@@ -67,6 +67,7 @@
 
  */
 
+
 // #include <Adafruit_NeoPixel.h>
 #include <WS2812Serial.h>
 #include "ros.h"
@@ -94,11 +95,10 @@ using std_srvs::Trigger;
 /* Tira led */
 #define PIN        1
 #define NUMPIXELS  450
-//Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_RGBW + NEO_KHZ800);
 
 byte drawingMemory[NUMPIXELS*4];         //  4 bytes per LED for RGBW
 DMAMEM byte displayMemory[NUMPIXELS*16]; // 16 bytes per LED for RGBW
-WS2812Serial pixels(NUMPIXELS, displayMemory, drawingMemory, PIN, WS2812_GRBW);
+WS2812Serial pixels(NUMPIXELS, displayMemory, drawingMemory, PIN, WS2812_RGBW);
 
 
 IdHandler id_handler;
@@ -145,16 +145,19 @@ void callback_set_led_effects(const robotnik_leds_msgs::LedEffects::Request & re
   effect_config.end_led = req.end_led;
   effect_config.ms_on = req.ms_on;
   effect_config.ms_off = req.ms_off;
+  effect_config.fade_in = req.fade_in;
+  effect_config.fade_out = req.fade_out;
+  effect_config.background_R = req.background_R;
+  effect_config.background_G = req.background_G;
+  effect_config.background_B = req.background_B;
+  effect_config.background_W = req.background_W;
   effect_config.direction = req.direction;
   effect_config.speed = req.speed;
   effect_config.sleep = req.sleep;
-  effect_config.led_increment = 1;
+  effect_config.led_increment = req.led_increment;
   effect_config.enabled = req.enabled;
 
 
-  //led_effects.updateEffects(effect_config);
-
- 
   //Save updates in the buffer
   led_effects.saveBufferEffects(effect_config);
    
@@ -164,8 +167,6 @@ void callback_set_led_effects(const robotnik_leds_msgs::LedEffects::Request & re
 
 void callback_update_led_effects(const Trigger::Request & req, Trigger::Response & res){
 
-   // Update using the effects stored in the buffer
-   //led_effects.updatePendingEffects();
    led_effects.enableUpdateEffects();
    res.success = true;
    res.message = "All effects stored in the buffer have been updated";
@@ -209,7 +210,7 @@ void callback_ack(const Trigger::Request & req, Trigger::Response & res){
   led_effects.firstACKFlag = true;
   led_effects.timeoutACK = 0;
   
-  digitalWrite(13,LOW);
+  //digitalWrite(13,LOW);
   res.success = true;
   res.message = "OK";
   
@@ -263,7 +264,6 @@ void callback_reset(const LedReset::Request & req, LedReset::Response & res){
 
 
 
-
 ros::ServiceServer<robotnik_leds_msgs::LedEffects::Request, robotnik_leds_msgs::LedEffects::Response> server_set_led_effects("arduino_led_signaling/set_led_properties",&callback_set_led_effects);
 ros::ServiceServer<Trigger::Request, Trigger::Response> server_update_led_effects("arduino_led_signaling/update_led_properties",&callback_update_led_effects);
 ros::ServiceServer<Trigger::Request, Trigger::Response> server_clear_leds("arduino_led_signaling/clear_effects",&callback_clear);
@@ -277,14 +277,14 @@ ros::ServiceServer<LedReset::Request, LedReset::Response> server_reset("arduino_
 void setup()
 {
 
-
+/*
   #if defined(__AVR_ATmega32U4__) or defined(__MK20DX256__)  // Arduino Leonardo/Micro, Teensy 3.2
     nh.getHardware()->setBaud(2000000); 
  
   #elif defined(__AVR_ATmega328P__)  // Arduino UNO/Nano
     nh.getHardware()->setBaud(57600);
   #endif   
-
+*/
 
   nh.initNode();
   nh.advertiseService(server_set_led_effects);
@@ -307,11 +307,27 @@ void setup()
 
 
   //while(!Serial){;}
+  Serial2.begin(2000000);
   
 }
 
 bool flag = true;
 float tic=0, toc = 0;
+float aux = 0;
+int count = 0;
+
+int ledState = LOW;
+
+void toggleLed(int led){
+
+  if (ledState == LOW) {
+    ledState = HIGH;
+  } else {
+    ledState = LOW;
+  }
+  digitalWrite(led, ledState);
+
+}
 
 
 void loop()
@@ -325,225 +341,70 @@ void loop()
 
   // Refresh time is 20 ms by default (min value)
   if(timeout_leds > COMMON_EFFECT_REFRESH_TIME){ 
-   
+    
     timeout_leds = 0;
     led_effects.runEffects();
     pixels.show();
     led_effects.updatePendingEffects();
 
    }
-  
-
-//
-//  if(flag){
-//
-//    flag = false;
-//
-//
-//    struct LedProperties effect_config;
-//  
-//    effect_config.id = "blink_1";
-//    effect_config.mode = "blink";
-//    effect_config.color_R = 0;
-//    effect_config.color_G = 50;
-//    effect_config.color_B = 0;
-//    effect_config.color_W = 0;
-//    effect_config.start_led = 71;
-//    effect_config.end_led = 90;
-//    effect_config.ms_on = 400;
-//    effect_config.ms_off = 400;
-//    effect_config.enabled = true;
-//  
-//    led_effects.updateEffects(effect_config);
-//
-//
-//
-//  
-//    effect_config.id = "blink_2";
-//    effect_config.mode = "blink";
-//    effect_config.color_R = 0;
-//    effect_config.color_G = 0;
-//    effect_config.color_B = 50;
-//    effect_config.color_W = 0;
-//    effect_config.start_led = 91;
-//    effect_config.end_led = 110;
-//    effect_config.ms_on = 400;
-//    effect_config.ms_off = 400;
-//    effect_config.enabled = true;
-//  
-//    led_effects.updateEffects(effect_config);
-//    
-//  /*
-//    struct LedProperties effect_config;
-//  
-//    effect_config.id = "shift_1";
-//    effect_config.mode = "shift";
-//    effect_config.color_R = 0;
-//    effect_config.color_G = 0;
-//    effect_config.color_B = 50;
-//    effect_config.color_W = 0;
-//    effect_config.start_led = 1;
-//    effect_config.end_led = 9;
-//    effect_config.ms_on = 500;
-//    effect_config.ms_off = 500;
-//    effect_config.direction = "right";
-//    effect_config.speed = 1000;
-//    effect_config.led_increment = 1;
-//    effect_config.enabled = true;
-//  
-//    led_effects.updateEffects(effect_config);
-//    
-//
-//    effect_config.id = "shift_2";
-//    effect_config.mode = "shift";
-//    effect_config.color_R = 0;
-//    effect_config.color_G = 50;
-//    effect_config.color_B = 0;
-//    effect_config.color_W = 0;
-//    effect_config.start_led = 10; // 11
-//    effect_config.end_led = 58; // 49
-//    effect_config.ms_on = 500;
-//    effect_config.ms_off = 500;
-//    effect_config.direction = "left";
-//    effect_config.speed = 1000;
-//    effect_config.led_increment = 1;
-//    effect_config.enabled = true;
-//
-//
-//    led_effects.updateEffects(effect_config);
-//*/
-//
-//    effect_config.id = "shift_3";
-//    effect_config.mode = "shift";
-//    effect_config.color_R = 0;
-//    effect_config.color_G = 50;
-//    effect_config.color_B = 0;
-//    effect_config.color_W = 0;
-//    effect_config.start_led = 22;
-//    effect_config.end_led = 30;
-//    effect_config.ms_on = 500;
-//    effect_config.ms_off = 500;
-//    effect_config.direction = "right";
-//    effect_config.speed = 400;
-//    effect_config.led_increment = 1;
-//    effect_config.enabled = true;
-//    
-//    led_effects.updateEffects(effect_config);
-//
-//
-//    effect_config.id = "shift_4";
-//    effect_config.mode = "shift";
-//    effect_config.color_R = 0;
-//    effect_config.color_G = 50;
-//    effect_config.color_B = 0;
-//    effect_config.color_W = 0;
-//    effect_config.start_led = 32;
-//    effect_config.end_led = 40;
-//    effect_config.ms_on = 500;
-//    effect_config.ms_off = 500;
-//    effect_config.direction = "left";
-//    //effect_config.speed = 1000;
-//    effect_config.led_increment = 1;
-//    effect_config.enabled = true;
-//    
-//    led_effects.updateEffects(effect_config);
-//
-//
-//    effect_config.id = "shift_5";
-//    effect_config.mode = "shift";
-//    effect_config.color_R = 0;
-//    effect_config.color_G = 50;
-//    effect_config.color_B = 0;
-//    effect_config.color_W = 0;
-//    effect_config.start_led = 42;
-//    effect_config.end_led = 50;
-//    effect_config.ms_on = 500;
-//    effect_config.ms_off = 500;
-//    effect_config.direction = "right";
-//    //effect_config.speed = 1000;
-//    effect_config.led_increment = 1;
-//    effect_config.enabled = true;
-//    
-//    led_effects.updateEffects(effect_config);
-//
-//
-//    effect_config.id = "shift_6";
-//    effect_config.mode = "shift";
-//    effect_config.color_R = 0;
-//    effect_config.color_G = 50;
-//    effect_config.color_B = 0;
-//    effect_config.color_W = 0;
-//    effect_config.start_led = 52;
-//    effect_config.end_led = 60;
-//    effect_config.ms_on = 500;
-//    effect_config.ms_off = 500;
-//    effect_config.direction = "left";
-//    //effect_config.speed = 1000;
-//    effect_config.led_increment = 1;
-//    effect_config.enabled = true;
-//    
-//    led_effects.updateEffects(effect_config);
-//
-//
-//
-//    effect_config.id = "shift_7";
-//    effect_config.mode = "shift";
-//    effect_config.color_R = 0;
-//    effect_config.color_G = 50;
-//    effect_config.color_B = 0;
-//    effect_config.color_W = 0;
-//    effect_config.start_led = 62;
-//    effect_config.end_led = 70;
-//    effect_config.ms_on = 500;
-//    effect_config.ms_off = 500;
-//    effect_config.direction = "right";
-//    //effect_config.speed = 1000;
-//    effect_config.led_increment = 1;
-//    effect_config.enabled = true;
-//    
-//    led_effects.updateEffects(effect_config);
-//
-// 
-//  
-//  }
-//  
-//  else{
-//   
-//   // Refresh time is 20 ms by default (min value)
-//   if(timeout_leds > COMMON_EFFECT_REFRESH_TIME){ 
-//    
-//     timeout_leds = 0;
-//     led_effects.runEffects();
-//     tic = micros();
-//     digitalWrite(23,HIGH);
-//     pixels.show();
-//     digitalWrite(23,LOW);
-//     toc = micros();
-//     Serial.println(toc-tic);
-//
-//   }
-//    
-//  }
 
 
-   /*
-    * 
-    * Problemas actuales:
-    *   - Tiempo entre una orden de efecto y otra en ROS, tiempo de cortesia CORREGIDO
-    *   - Cuando hay muchos efectos, la actualización es lenta, usar un vector y escribir en la tira una sola vez CORREGIDO
-    *   - Desincronización en efecto sobretodo en shift con diferentes longitudes, implementar un periodo de ejecución (no usar millis) CORREGIDO
-    *   
-    *   TO DO
-    *   
-    *   - Comprobar que funciona en ROS
-    *   - Revisar roundToRefeshTime, ver donde colocarlo, quizas usar detectUpdates()
-    *   - Bug en blink a diferentes ms_on y ms_off (implementar maquina de estados)
-    *   - Añadir a blink la propiedad color_off para definir el color que tendrá apagado
-    *   - Añadir el efecto fade (ir de un color a otro haciendo un fade)
-    *   - Crear asistente para calcular speeds y leds
-    *   - Crear en ROS y en Arduino funciones de start y stop para ejecutar varios efectos a la misma vez
-    *  
-    */
+
+
+
+
+
+/*
+  if(flag) {
+
+    flag = false;
+   
+    struct LedProperties effect_config;
+
+    effect_config.id = "blink_test";
+    effect_config.mode = "blink";
+    effect_config.color_R = 0;
+    effect_config.color_G = 150;
+    effect_config.color_B = 0;
+    effect_config.color_W = 0;
+    effect_config.background_R = 0;
+    effect_config.start_led = 1; 
+    effect_config.end_led = 100; 
+    effect_config.ms_on = 1000;
+    effect_config.ms_off = 1000;
+    effect_config.fade_in = 500;
+    effect_config.fade_out = 500;
+    effect_config.enabled = true;
+
+    led_effects.saveBufferEffects(effect_config);
+    led_effects.enableUpdateEffects();
+
+  }
+ 
+  else{
+
+   // Refresh time is 20 ms by default (min value)
+   if(timeout_leds >= COMMON_EFFECT_REFRESH_TIME){ 
+
+     timeout_leds = 0;
+     //tic = micros();
+     led_effects.runEffects();
+     //toggleLed(23);
+     //digitalWrite(23,HIGH);
+     pixels.show();
+     //digitalWrite(23,LOW);
+     led_effects.updatePendingEffects();
+     //toc = micros();
+     //Serial.println(toc-tic);
+     
+     //Serial.print("-------------------------");
+     //Serial.println(count++);
+     
+   }   
+ }
+*/
+
 
   
 }
