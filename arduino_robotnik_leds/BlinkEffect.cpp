@@ -27,9 +27,20 @@
  
       bool     enabled = this -> effect_config.enabled;
 
-      
-      if(enabled){
 /*
+if (color_G > 5 && background_R > 5){
+          if(enabled){
+              digitalWrite(23,HIGH);  
+                 Serial2.println("aa");
+          }
+          else{
+             digitalWrite(23,LOW);
+            }
+}
+*/
+      if(enabled){
+
+/*      
                     Serial.println(fade_R);
               Serial.println(fade_G);
                 Serial.println(fade_B);
@@ -39,7 +50,7 @@
           ms_on = roundToRefreshTime(ms_on);
           ms_off = roundToRefreshTime(ms_off);
 
-      
+         
           if(fade_in > 0){
             
               fade_in_timeout = roundToRefreshTime(fade_in);
@@ -67,6 +78,7 @@
           if(firstTime()){
             
               blink_time = 0;  
+              state = FADE_IN;
               fade_R = background_R;
               fade_G = background_G;
               fade_B = background_B;
@@ -103,13 +115,31 @@
                       fade_G+= increment_fade_in_G;
                       fade_B+= increment_fade_in_B;
                       fade_W+= increment_fade_in_W;
-                      Serial.println(fade_R);
-                      Serial.println(fade_G);
-                      Serial.println("-----");
+                      //Serial.println(fade_R);
+                      //Serial.println(fade_G);
+                      //Serial.println("-----");
+
+                      if(fade_R > color_R)
+                          fade_R = color_R;
+                      if(fade_G > color_G)
+                          fade_G = color_G;
+                      if(fade_B > color_B)
+                          fade_B = color_B;
+                      if(fade_W > color_W)
+                          fade_W = color_R;
+
+                      if(fade_R < 0)
+                          fade_R = 0;
+                      if(fade_G < 0)
+                          fade_G = 0;
+                      if(fade_B < 0)
+                          fade_B = 0;
+                      if(fade_W < 0)
+                          fade_W = 0;
 
                       // Conversion to an integer greater than zero
-                      showFillPixels(max(int(fade_R),0),max(int(fade_G),0),max(int(fade_B),0),max(int(fade_W),0), start_led, end_led);
-                      
+                      showFillPixels(int(fade_R), int(fade_G), int(fade_B), int(fade_W), start_led, end_led);
+                     
                     }
 
                     else{
@@ -125,8 +155,6 @@
                     showFillPixels(color_R,color_G,color_B, color_W, start_led, end_led);
                     //showFillPixels(0,50,0, 0, start_led, end_led);
                     state = HOLD_ON;
-                     
-
                     break;
                     
               case HOLD_ON:
@@ -146,8 +174,27 @@
                       fade_G-= increment_fade_out_G;
                       fade_B-= increment_fade_out_B;
                       fade_W-= increment_fade_out_W;
+
+
+                      if(fade_R > 255)
+                          fade_R = 255;
+                      if(fade_G > 255)
+                          fade_G = 255;
+                      if(fade_B > 255)
+                          fade_B = 255;
+                      if(fade_W > 255)
+                          fade_W = 255;
+
+                      if(fade_R < 0)
+                          fade_R = 0;
+                      if(fade_G < 0)
+                          fade_G = 0;
+                      if(fade_B < 0)
+                          fade_B = 0;
+                      if(fade_W < 0)
+                          fade_W = 0;
         
-                       showFillPixels(max(int(fade_R),0),max(int(fade_G),0),max(int(fade_B),0),max(int(fade_W),0), start_led, end_led);
+                       showFillPixels(int(fade_R),int(fade_G),int(fade_B),int(fade_W), start_led, end_led);
                       //Serial.println(fade_R);
                       //Serial.println(fade_G);
                       //Serial.println("-----");
@@ -164,7 +211,6 @@
 
                     showFillPixels(background_R,background_G,background_B,background_W,  start_led, end_led);
                     state = HOLD_OFF;
-                    
                     break;
 
               case HOLD_OFF:

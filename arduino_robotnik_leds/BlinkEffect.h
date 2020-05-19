@@ -16,6 +16,7 @@
       //elapsedMillis blink_time;  //Tiempo transcurrido entre un intervalo
       float blink_time = 0;
       enum blink_resources {FADE_IN, LED_ON, FADE_OUT, LED_OFF, HOLD_ON, HOLD_OFF};
+      //                      0          1      2          3        4        5
       int state = FADE_IN;
       float fade_R = 0, fade_G = 0, fade_B = 0, fade_W = 0;
       int fade_in_tics = 0, fade_out_tics = 0;
